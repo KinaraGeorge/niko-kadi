@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kadi Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one chunky column on phones; oversized rounded type, big tactile pills, a hand of cards as the single bold move.
+   Palette is fresh greens with the Kenyan flag stripe (black, red, white, green) as a quiet signature. */
+:root{
+  --bg:#F1FBEA;          /* fresh mint */
+  --surface:#FFFFFF;
+  --ink:#0C2A1B;         /* green-black */
+  --ink-soft:#42604F;
+  --green:#1FB76A;       /* feel-good green */
+  --green-deep:#0B5D3A;
+  --lime:#C9F25A;
+  --line:#D3EBC6;
+  --card:#FFFFFF;
+  --card-ink:#0C2A1B;
+  --suit-red:#E0352B;
+  --hero:#B9F0A0;
+  --shadow:0 14px 30px -14px rgba(11,93,58,.45);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  --gutr:max(16px,env(safe-area-inset-right,0px));
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#08170F;--surface:#112A1D;--ink:#EAF9E1;--ink-soft:#9CC2AA;--green:#37D585;--green-deep:#8DF0B6;--lime:#C9F25A;
+  --line:#1D4230;--card:#F6FFF0;--card-ink:#0C2A1B;--suit-red:#E0352B;--hero:#0F3A25;--shadow:0 14px 30px -14px rgba(0,0,0,.7);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08170F;--surface:#112A1D;--ink:#EAF9E1;--ink-soft:#9CC2AA;--green:#37D585;--green-deep:#8DF0B6;--lime:#C9F25A;
+  --line:#1D4230;--card:#F6FFF0;--card-ink:#0C2A1B;--suit-red:#E0352B;--hero:#0F3A25;--shadow:0 14px 30px -14px rgba(0,0,0,.7);color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 var(--body);overflow-x:hidden}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.025em;line-height:.95}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:12px}
+.wrap{padding-left:var(--gut);padding-right:var(--gutr);max-width:1080px;margin:0 auto}
+.eyebrow{font:700 .78rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--green-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:56px;padding:0 1.6rem;border-radius:999px;border:0;font:700 1.05rem/1 var(--body);cursor:pointer;text-decoration:none;transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn-main{background:var(--ink);color:var(--bg)}
+.btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.flag{display:flex;height:8px}
+.flag i{flex:1}
+.flag i:nth-child(1){background:#111}.flag i:nth-child(2){background:#D6352B}.flag i:nth-child(3){background:#fff}.flag i:nth-child(4){background:#17A05C}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
+.logo{display:flex;align-items:center;gap:.55rem;font:800 1.3rem/1 var(--display);letter-spacing:-.03em;text-decoration:none}
+.logo b{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--ink);color:var(--lime);font-size:1.15rem;transform:rotate(-6deg)}
+.top .btn{min-height:44px;padding:0 1.1rem;font-size:.95rem}
+
+/* hero */
+.hero{background:var(--hero);margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);border-radius:0 0 40px 40px;overflow:hidden}
+.hero .wrap{padding-bottom:2.2rem}
+.hero h1{font-size:clamp(4.2rem,22vw,9.5rem);font-weight:800;margin-top:1.4rem}
+.hero h1 em{font-style:normal;display:inline-block;background:var(--lime);color:#0C2A1B;padding:0 .12em .04em;border-radius:.2em;transform:rotate(-3deg)}
+.hero .lede{font-size:1.2rem;max-width:30ch;margin-top:1.2rem;color:var(--ink)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem;padding:0;list-style:none}
+.chips li{padding:.45rem .9rem;border-radius:999px;background:var(--bg);font:600 .88rem/1 var(--body)}
+
+/* hand of cards */
+.hand{position:relative;height:300px;margin-top:1rem}
+.card{position:absolute;left:50%;bottom:0;width:132px;aspect-ratio:5/7;border-radius:16px;background:var(--card);color:var(--card-ink);box-shadow:var(--shadow);border:0;padding:0;font-family:var(--display);cursor:pointer;
+  transform-origin:50% 130%;transform:translateX(calc(-50% + var(--x))) rotate(var(--r));transition:transform .35s cubic-bezier(.2,1.3,.4,1);text-align:left}
+.card.red{color:var(--suit-red)}
+.card .tl{position:absolute;top:10px;left:12px;display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:1.5rem;line-height:1}
+.card .tl small{font-size:1.15rem;margin-top:2px}
+.card .mid{position:absolute;inset:0;display:grid;place-items:center;font-size:3.6rem;opacity:.9}
+.card .tag{position:absolute;left:8px;right:8px;bottom:8px;padding:.3rem .2rem;border-radius:8px;background:var(--green-deep);color:var(--bg);font:700 .62rem/1.1 var(--body);letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.card:hover,.card.up{transform:translateX(calc(-50% + var(--x))) translateY(-34px) rotate(calc(var(--r) * .4))}
+.card.up{z-index:9}
+.hint{font-size:.85rem;text-align:center;color:var(--ink-soft);margin-top:.6rem;font-weight:600}
+
+/* sections */
+section{padding-block:4rem}
+.sec-head{display:grid;gap:.9rem;margin-bottom:2rem}
+.sec-head h2{font-size:clamp(2.4rem,10vw,4.2rem);font-weight:800}
+.sec-head p{color:var(--ink-soft);max-width:44ch}
+
+/* invite */
+.invite{display:grid;gap:1.4rem}
+.panel{background:var(--surface);border-radius:32px;padding:1.4rem;box-shadow:inset 0 0 0 2px var(--line);min-width:0}
+.field{display:grid;gap:.45rem}
+.field+.field{margin-top:1rem}
+.field label{font:700 .8rem/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.input-row{display:flex;gap:.5rem}
+input[type=text]{flex:1;min-width:0;height:56px;padding:0 1.1rem;border-radius:18px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font:600 1.05rem/1 var(--body)}
+input[type=text]:focus-visible{outline:3px solid var(--green);outline-offset:1px;border-color:var(--green)}
+.add{flex:none;width:56px;height:56px;border-radius:18px;border:0;background:var(--green);color:#06210F;font:800 1.7rem/1 var(--display);cursor:pointer}
+.code{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:1.2rem;padding:1rem 1rem 1rem 1.2rem;border-radius:22px;background:var(--ink);color:var(--bg)}
+.code div{min-width:0}
+.code small{display:block;font:700 .7rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.code strong{display:block;font:800 2rem/1.1 var(--display);letter-spacing:.04em;color:var(--lime);margin-top:.3rem}
+.code span{display:block;font-size:.85rem;opacity:.8;overflow-wrap:anywhere;margin-top:.15rem}
+.copy{flex:none;min-height:48px;padding:0 1.1rem;border-radius:999px;border:0;background:var(--lime);color:#0C2A1B;font:700 .95rem/1 var(--body);cursor:pointer}
+.table{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem .4rem;justify-items:center;padding:1.4rem .6rem;border-radius:999px/40px;background:var(--green-deep);color:#EAF9E1;min-width:0}
+.seat{display:grid;justify-items:center;gap:.4rem;font:700 .85rem/1.1 var(--body);text-align:center;min-width:0;max-width:100%}
+.seat i{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--lime);color:#0C2A1B;font:800 1.3rem/1 var(--display);font-style:normal}
+.seat.empty i{background:transparent;border:2px dashed rgba(234,249,225,.55);color:rgba(234,249,225,.7)}
+.seat.empty{opacity:.8}
+.seat span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.note{font-size:.9rem;color:var(--ink-soft);margin-top:1rem}
+
+/* power cards */
+.powers{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;padding:0;margin:0;list-style:none}
+.power{display:grid;gap:.6rem;align-content:start;padding:1.1rem;border-radius:26px;background:var(--surface);box-shadow:inset 0 0 0 2px var(--line);min-width:0}
+.power .face{display:grid;place-items:center;width:52px;height:68px;border-radius:11px;background:var(--card);color:var(--card-ink);font:800 1.5rem/1 var(--display);box-shadow:0 6px 14px -8px rgba(0,0,0,.5)}
+.power .face.red{color:var(--suit-red)}
+.power h3{font-size:1.3rem;line-height:1.05}
+.power p{font-size:.95rem;color:var(--ink-soft);line-height:1.4}
+.power.hot{background:var(--lime);box-shadow:none;color:#0C2A1B}
+.power.hot p{color:#254D36}
+.power.hot .face{box-shadow:none}
+.fine{margin-top:1rem;font-size:.9rem;color:var(--ink-soft)}
+
+/* steps */
+.steps{display:grid;gap:.9rem;padding:0;margin:0;list-style:none;counter-reset:s}
+.step{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;padding:1.3rem;border-radius:28px;background:var(--surface);box-shadow:inset 0 0 0 2px var(--line);counter-increment:s}
+.step::before{content:counter(s);display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--green);color:#06210F;font:800 1.4rem/1 var(--display)}
+.step h3{font-size:1.5rem;line-height:1.05}
+.step p{color:var(--ink-soft);margin-top:.4rem}
+
+/* call-out banner */
+.call{background:var(--green);color:#06210F;border-radius:40px;padding:2.4rem 1.4rem;text-align:left;overflow:hidden;position:relative}
+.call h2{font-size:clamp(3rem,15vw,6rem);font-weight:800}
+.call p{margin-top:1rem;max-width:30ch;font-weight:500;font-size:1.15rem}
+.call .btn{margin-top:1.5rem;background:#06210F;color:var(--lime)}
+.call .big{position:absolute;right:-.5rem;bottom:-2.2rem;font:800 11rem/1 var(--display);opacity:.18;pointer-events:none}
+
+footer{padding-block:2.5rem 3rem;color:var(--ink-soft);font-size:.92rem;display:grid;gap:1rem}
+footer .flag{max-width:140px;border-radius:99px;overflow:hidden}
+
+@media (min-width:720px){
+  .hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;align-items:end;gap:2rem}
+  .hand{height:360px}.card{width:158px}
+  .invite{grid-template-columns:1fr 1fr;align-items:start}
+  .powers{grid-template-columns:repeat(3,1fr)}
+  .steps{grid-template-columns:repeat(3,1fr)}
+  .step{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="hero">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="wrap">
+    <div class="top" style="grid-column:1/-1;padding-left:0;padding-right:0">
+      <a class="logo" href="#top"><b>K</b>Kadi Night</a>
+      <a class="btn btn-main" href="#invite">Start a table</a>
+    </div>
+    <div>
+      <p class="eyebrow">Karibu · Free to play · 2 to 6 friends</p>
+      <h1 id="top"><em>Niko</em> kadi!</h1>
+      <p class="lede">Kenyan poker with your people, wherever they are tonight. Share one code. Everyone's at the table in seconds.</p>
+      <div class="cta">
+        <a class="btn btn-main" href="#invite">Invite my friends</a>
+        <a class="btn btn-ghost" href="#rules">See the power cards</a>
+      </div>
+      <ul class="chips"><li>Plays in your browser</li><li>No sign-up</li><li>Light on data</li></ul>
+    </div>
+    <div>
+      <div class="hand" id="hand" aria-label="A hand of Kenyan poker cards. Tap a card to lift it.">
+        <button class="card" style="--x:-118px;--r:-16deg" data-t="Pick 2"><span class="tl">2<small>♥</small></span><span class="mid">♥</span><span class="tag">Pick 2</span></button>
+        <button class="card" style="--x:-58px;--r:-8deg" data-t="Skip"><span class="tl">J<small>♠</small></span><span class="mid">♠</span><span class="tag">Skip next</span></button>
+        <button class="card" style="--x:0px;--r:0deg" data-t="Change suit"><span class="tl">A<small>♠</small></span><span class="mid">♠</span><span class="tag">Change suit</span></button>
+        <button class="card" style="--x:58px;--r:8deg" data-t="Kickback"><span class="tl">K<small>♦</small></span><span class="mid">♦</span><span class="tag">Kickback</span></button>
+        <button class="card" style="--x:118px;--r:16deg" data-t="Question"><span class="tl">8<small>♣</small></span><span class="mid">♣</span><span class="tag">Question</span></button>
+      </div>
+      <p class="hint" id="hint">Tap a card. Each one changes the game.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="invite">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Set the table</p>
+      <h2>Call your friends. Keep it simple.</h2>
+      <p>Name your table, add who's coming, send the code on WhatsApp. This is a live preview of the invite.</p>
+    </div>
+    <div class="invite">
+      <div class="panel">
+        <div class="field">
+          <label for="tname">Table name</label>
+          <input type="text" id="tname" value="Jumamosi Boys" maxlength="22" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="fname">Add a friend</label>
+          <div class="input-row">
+            <input type="text" id="fname" placeholder="Wanjiru" maxlength="12" autocomplete="off">
+            <button class="add" id="add" aria-label="Add friend">+</button>
+          </div>
+        </div>
+        <div class="code">
+          <div>
+            <small>Table code</small>
+            <strong id="code">KADI-7HJ</strong>
+            <span id="link">kadinight.app/t/7HJ</span>
+          </div>
+          <button class="copy" id="copy">Copy</button>
+        </div>
+        <p class="note" id="status" aria-live="polite">Friends join with one tap. No account needed.</p>
+      </div>
+      <div class="table" id="table" aria-label="Seats at the table"></div>
+    </div>
+  </div>
+</section>
+
+<section id="rules" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Same cards, same rules</p>
+      <h2>The power cards you grew up with.</h2>
+      <p>Play the way your family does. Switch house rules on or off before the first deal.</p>
+    </div>
+    <ul class="powers">
+      <li class="power"><div class="face red">2♥</div><h3>Pick two</h3><p>Next player draws two, or stacks another 2 on top.</p></li>
+      <li class="power"><div class="face">3♣</div><h3>Pick three</h3><p>Draw three, or pass the pain along with another 3.</p></li>
+      <li class="power"><div class="face">J♠</div><h3>Skip</h3><p>The next player sits this turn out.</p></li>
+      <li class="power"><div class="face red">K♦</div><h3>Kickback</h3><p>The order of play reverses.</p></li>
+      <li class="power"><div class="face">8♣</div><h3>Question</h3><p>Answer with a card of the same suit, or draw.</p></li>
+      <li class="power hot"><div class="face">A♠</div><h3>Change suit</h3><p>Call any suit you like. Make them regret that heart.</p></li>
+    </ul>
+    <p class="fine">Rules differ between towns and families, so each table can adjust them.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">How a night goes</p>
+      <h2>From message to first deal in under a minute.</h2>
+    </div>
+    <ol class="steps">
+      <li class="step"><div><h3>Make a table</h3><p>Pick a name. You get a short code and a link.</p></div></li>
+      <li class="step"><div><h3>Send the code</h3><p>Drop it in the group chat. Everyone joins from their phone.</p></div></li>
+      <li class="step"><div><h3>Deal and talk</h3><p>Four cards each. Keep your voice call going and say it loud when you go out: niko kadi!</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="call">
+      <h2>Niko kadi!</h2>
+      <p>One card left? Say it first, or pick up two. The whole table is watching.</p>
+      <a class="btn" href="#invite">Start a table</a>
+      <span class="big" aria-hidden="true">♠</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <p><strong style="color:var(--ink)">Kadi Night</strong> is a landing page concept. The game is not built yet. It is made for fun with friends and has no real money.</p>
+  <p>Made with love for every table that goes quiet when someone says "niko kadi".</p>
+</footer>
+
+<script>
+(function(){
+  // card hand
+  var hand=document.getElementById('hand'),hint=document.getElementById('hint');
+  hand.addEventListener('click',function(e){
+    var c=e.target.closest('.card');if(!c)return;
+    var was=c.classList.contains('up');
+    hand.querySelectorAll('.card').forEach(function(x){x.classList.remove('up')});
+    if(!was){c.classList.add('up');hint.textContent='You played: '+c.dataset.t+'.'}
+    else hint.textContent='Tap a card. Each one changes the game.';
+  });
+
+  // invite preview
+  var tname=document.getElementById('tname'),fname=document.getElementById('fname'),
+      codeEl=document.getElementById('code'),linkEl=document.getElementById('link'),
+      table=document.getElementById('table'),status=document.getElementById('status'),
+      friends=['Wanjiru','Otieno'];
+  function hash(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%46656;return h}
+  function code(){
+    var s=(hash(tname.value.trim()||'kadi')).toString(36).toUpperCase();
+    while(s.length<3)s='0'+s;s=s.slice(-3);
+    codeEl.textContent='KADI-'+s;linkEl.textContent='kadinight.app/t/'+s;
+  }
+  function seats(){
+    var names=['You'].concat(friends),h='';
+    for(var i=0;i<6;i++){
+      if(names[i]){var n=names[i].replace(/[<>&"]/g,'');h+='<div class="seat"><i>'+n.charAt(0).toUpperCase()+'</i><span>'+n+'</span></div>'}
+      else h+='<div class="seat empty"><i>+</i><span>Open seat</span></div>';
+    }
+    table.innerHTML=h;
+  }
+  function add(){
+    var v=fname.value.trim();
+    if(!v){status.textContent='Type a name first.';return}
+    if(friends.length>=5){status.textContent='The table is full. Six seats max.';return}
+    friends.push(v);fname.value='';seats();status.textContent=v+' has a seat.';
+  }
+  document.getElementById('add').addEventListener('click',add);
+  fname.addEventListener('keydown',function(e){if(e.key==='Enter')add()});
+  tname.addEventListener('input',code);
+  document.getElementById('copy').addEventListener('click',function(){
+    var t='Niko kadi? Join '+(tname.value.trim()||'my table')+' on Kadi Night: '+linkEl.textContent+' (code '+codeEl.textContent+')';
+    function ok(){status.textContent='Copied. Paste it in the group chat.'}
+    function no(){status.textContent='Copy blocked. Select the code and share it by hand.'}
+    try{navigator.clipboard.writeText(t).then(ok,no)}catch(e){no()}
+  });
+  code();seats();
+})();
+</script>
+</body>
+</html>
