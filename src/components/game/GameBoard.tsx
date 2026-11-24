@@ -15,6 +15,7 @@ import {
 } from "@/game/rules";
 import { emit } from "@/lib/socket";
 import { CardBack, PlayingCard } from "./PlayingCard";
+import { PlayCallout } from "./PlayCallout";
 
 type Props = { snap: TableSnapshot; onLeave: () => void };
 
@@ -155,6 +156,7 @@ export function GameBoard({ snap, onLeave }: Props) {
       </ul>
 
       <div className="felt">
+        <PlayCallout version={g.version} discardCount={g.discardCount} recent={g.recent} lastLog={g.log[g.log.length - 1]} />
         <div className="piles">
           <CardBack
             count={g.deckCount}

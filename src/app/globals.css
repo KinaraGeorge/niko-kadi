@@ -322,3 +322,26 @@ button.pc{cursor:pointer}
   .discard-fan{margin-left:calc((var(--n) - 1) * 8px)}
   .discard-fan li{transform:translate(calc(var(--i) * -8px),calc(var(--i) * -26px))}
 }
+
+/* "Who played what" callout over the table: starts big, shrinks and fades out in 3s.
+   White card-style panel so dark ink (14:1) and the card red (5.6:1) stay readable. */
+.felt{position:relative}
+.callout{position:absolute;left:50%;top:42%;z-index:20;width:max-content;max-width:min(86%,440px);
+  display:grid;justify-items:center;gap:.3rem;padding:.8rem 1.3rem 1rem;border-radius:28px;
+  background:#FFFFFF;color:#0C2A1B;box-shadow:0 20px 40px -16px rgba(0,0,0,.6),0 0 0 4px var(--lime);
+  text-align:center;pointer-events:none;
+  transform:translate(-50%,-50%);animation:callout 3s cubic-bezier(.2,.8,.3,1) forwards}
+.callout p{margin:0}
+.callout-cards{display:flex;gap:.4em;font:800 clamp(3rem,16vw,5rem)/1 var(--display);letter-spacing:-.02em}
+.callout-cards .red{color:#C42B22}
+.callout-text{font:700 1.05rem/1.25 var(--body);max-width:24ch;text-wrap:balance}
+.callout-text.solo{font:800 clamp(1.5rem,7vw,2.2rem)/1.1 var(--display)}
+@keyframes callout{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}
+  8%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}
+  55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
+}
+/* Reduced motion: no zooming, just a gentle fade in and out over the same 3 seconds. */
+@keyframes callout-calm{0%{opacity:0}10%{opacity:1}70%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.callout{animation:callout-calm 3s linear forwards !important;transition:none}}

@@ -170,6 +170,7 @@ To play with friends who are **not** on your Wi-Fi, deploy it to the VPS (below)
 | **Draw** / **Pick N** | Draw one card, or pick up the cards a 2 or 3 is making you take. Tapping the deck does the same. |
 | **Niko kadi!** | Call it when everything left in your hand can go out on your next turn. With the default rules, you can't finish without calling it first. |
 | **Played pile** (middle) | The last five cards played step up behind the top card, so you can read each one's number and suit, like a real table. |
+| **Big callout** (over the table) | Every play pops up in large text, for example **2♥** and "Otieno played 2♥. Next player picks 2!", then shrinks and fades away within 3 seconds. With reduced motion turned on, it just fades. |
 | **Players** (top) | Each friend's card count. A green ring shows whose turn it is. |
 
 **Default house rules** (the host can change them in the lobby):
