@@ -2,20 +2,22 @@
 
 # 🃏 Kadi Night
 
-### *Niko kadi!* Invite your friends to a game of Kenyan poker.
+### *Niko kadi!* Play Kenyan poker online with your friends.
 
-A mobile-first landing page for **Kadi**, the card game every Kenyan learned at a family gathering,<br/>
-rebuilt for the group chat era.
+**Kadi**, the card game every Kenyan learned at a family gathering, rebuilt for the group chat era.<br/>
+Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 
-![Status](https://img.shields.io/badge/status-landing%20page%20live-1FB76A?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-playable%20on%20localhost-1FB76A?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-16-0C2A1B?style=for-the-badge&logo=nextdotjs)
+![Socket.IO](https://img.shields.io/badge/Socket.IO-realtime-0B5D3A?style=for-the-badge&logo=socketdotio)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0B5D3A?style=for-the-badge&logo=typescript&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-35%20passing-C9F25A?style=for-the-badge&labelColor=0C2A1B)
+![WCAG](https://img.shields.io/badge/contrast-WCAG%202.2%20AA-0B5D3A?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-ready-C9F25A?style=for-the-badge&logo=docker&labelColor=0C2A1B)
-![Mobile first](https://img.shields.io/badge/mobile-first-0B5D3A?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-not%20chosen%20yet-42604F?style=for-the-badge)
 ![Free to play](https://img.shields.io/badge/real%20money-never-E0352B?style=for-the-badge)
 
-[**Design brief**](design/HANDOFF.md) · [**Architecture plan**](docs/ARCHITECTURE.md) · [**Roadmap**](#-roadmap)
+[**Run it locally**](#-run-it-on-your-computer) · [**How to play**](#-how-to-play) · [**Architecture**](docs/ARCHITECTURE.md) · [**Roadmap**](#-roadmap)
 
 </div>
 
@@ -26,13 +28,17 @@ rebuilt for the group chat era.
 - [About](#-about)
 - [Features](#-features)
 - [What is Kadi?](#-what-is-kadi)
-- [Quick start](#-quick-start)
+- [Run it on your computer](#-run-it-on-your-computer)
+- [Play with friends on your Wi-Fi](#-play-with-friends-on-your-wi-fi)
+- [How to play](#-how-to-play)
+- [Play against the computer](#-play-against-the-computer)
+- [Accessibility](#-accessibility)
 - [Deploying to a VPS](#-deploying-to-a-vps)
+- [How it works](#-how-it-works)
 - [Project structure](#-project-structure)
 - [Tech choices](#-tech-choices)
 - [Design system](#-design-system)
-- [Page walkthrough](#-page-walkthrough)
-- [Placeholders and limits](#%EF%B8%8F-placeholders-and-limits)
+- [Troubleshooting](#-troubleshooting)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -43,39 +49,41 @@ rebuilt for the group chat era.
 
 **Who it's for:** friends and families who grew up playing Kadi and now live in different towns, or just want game night from the sofa.
 
-**Why it exists:** organising a game should be as easy as sending a message. One code in the group chat, and everyone is at the table.
+**Why it exists:** organising a game should be as easy as sending a message. One link in the group chat, and everyone is at the table.
 
-Kadi Night is the front door to an online Kadi game. Right now it is a **Next.js landing page**, ported exactly from the original design. The first big milestone is a link you can share in the group chat so friends can play a real game together, with Discord-style voice chat after that.
+**What works today:**
 
-The page lets someone:
-
-1. **Name a table** (say, *"Jumamosi Boys"*),
-2. **Add friends** and watch them fill seats around a felt table,
-3. **Get a short invite code and link** to drop in the group chat,
-4. **Learn the power cards** they grew up with.
+1. Start a table from the landing page and get a short code like **KADI-7HJ2**.
+2. Share the link. Friends tap it, type their name and take a seat. No accounts.
+3. The host picks house rules and deals.
+4. Everyone plays in real time from their own phone, with the full power-card rules.
+5. Refresh or lose signal and you land back in your seat with the same hand.
+6. Nobody around? Practise against computer players, or fill empty seats with them.
 
 > [!NOTE]
-> The game itself is not built yet. The invite builder works in the browser only, so nothing is saved or sent anywhere. The plan for online play and voice is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+> Voice chat is the next milestone. Until then, keep your WhatsApp call going while you play.
 
 ---
 
 ## ✨ Features
 
-- 📱 **Mobile first:** built for phones, scales up to a grid on bigger screens.
-- 🃏 **Tappable card fan:** five power cards fan out in the hero.
-- 🪑 **Live invite builder:** name a table, add friends, watch the seats fill.
-- 🔗 **Shareable code and link** with a one-tap copy button.
-- 🌗 **Light and dark mode** that follow your system setting.
+- 🃏 **Real Kadi rules:** pick two, pick three, skip, kickback, questions, change suit, and the *"Niko kadi!"* call.
+- 🤖 **Computer players:** easy or normal, for practice or to fill empty seats.
+- 🏠 **House rules per table:** switch stacking, ace blocking, finishing rules and cards dealt.
+- 📱 **Built for one hand on a phone:** big tap targets, your hand at the thumb, a buzz when it's your turn.
+- 🔗 **Share anywhere:** the phone's share sheet, WhatsApp, or copy the link.
+- 🔄 **Reconnects on its own:** your seat is saved in the browser.
+- 🔒 **No cheating by peeking:** the server deals and only ever sends you your own cards.
+- 🎴 **Real-looking cards, drawn in CSS:** paper finish, corner indices, proper pip layouts and framed court cards on a felt table with a wooden rim. No images, so it stays fast on cheap phones.
+- 🌗 **Light and dark mode** that follow your phone's setting, both checked against WCAG 2.2 AA contrast.
 - 🇰🇪 **Kenyan through and through:** flag stripe, Swahili touches, the rules you know.
-- 📲 **Add to Home Screen:** a web app manifest makes it open like an app.
-- 🐳 **Self-hostable:** one Docker image, no Vercel-only features, health check built in.
-- 🗣 **Coming next:** real-time play, then table voice chat with push-to-talk, noise suppression, mute, deafen and per-person volume.
+- 🐳 **Self-hostable:** Docker Compose with automatic HTTPS. No Vercel-only features.
 
 ---
 
 ## 🇰🇪 What is Kadi?
 
-Kadi is a fast shedding game, close cousin to Crazy Eights and Uno, played with a standard 52-card deck. Everyone starts with four cards. You match the top card by suit or rank, and you must announce **"Niko kadi!"** ("I'm on my last card!") before you go out. Forget to say it, and you're picking up.
+Kadi is a fast shedding game, close cousin to Crazy Eights and Uno, played with a standard 52-card deck. Everyone starts with four cards. You match the top card by suit or rank, and you must announce **"Niko kadi!"** ("I'm on my last card!") before you go out. Forget to say it, and you can't go out.
 
 The fun lives in the **power cards**:
 
@@ -93,63 +101,176 @@ The fun lives in the **power cards**:
 
 ---
 
-## 🚀 Quick start
+## 🚀 Run it on your computer
 
-**Prerequisites**
+**You need**
 
-- [Node.js](https://nodejs.org) 20.9 or newer (22 recommended; there is an `.nvmrc`)
-- npm, which comes with Node
+- [Node.js](https://nodejs.org) 20.9 or newer (22 recommended, see `.nvmrc`). Check with `node -v`.
+- [Git](https://git-scm.com), to download the code.
 
-**Run it locally**
+**Steps**
 
 ```sh
 git clone https://github.com/KinaraGeorge/niko-kadi.git
 cd niko-kadi
-npm install
-npm run dev
+npm install        # first time only
+npm run dev        # starts the website and the game server together
 ```
 
-Open **http://localhost:3000**. Edits to files in `src/` show up instantly. Use your browser's device toolbar to check the phone layout first, since that is what it is designed for.
+You'll see two coloured streams of logs: `[web]` for the website and `[game]` for the game server. Then:
+
+1. Open **http://localhost:3000**.
+2. Scroll to **Set the table**, type your name, and tap **Start a table**.
+3. Copy the table link, then open it in **another browser window** (a private/incognito window counts as a different player). Add a third window if you like.
+4. Back in the first window, tap **Deal** and play against yourself to test.
+
+> [!TIP]
+> Each player needs their own browser profile, because your seat is remembered in the browser. Use a normal window plus incognito windows, or different browsers (Chrome, Firefox, Edge).
 
 **Handy scripts**
 
 | Command | What it does |
 | :-- | :-- |
-| `npm run dev` | Development server with hot reload |
-| `npm run build` | Production build (also type-checks) |
-| `npm start` | Serve the production build |
-| `npm run typecheck` | TypeScript check only |
+| `npm run dev` | Website on port 3000 and game server on port 4000, both reload when you edit |
+| `npm test` | Runs the 35 tests (rules engine and computer players) |
+| `npm run smoke` | Three robot players play full games against a running game server |
+| `npm run typecheck` | TypeScript check |
+| `npm run build` | Production build of the website and the game server |
 
-> [!TIP]
-> To test on your phone, run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer's-IP>:3000` on a phone connected to the same Wi-Fi.
+---
+
+## 📶 Play with friends on your Wi-Fi
+
+Friends on the same Wi-Fi as your computer can join from their phones while you test.
+
+1. Find your computer's local IP address:
+   - **Windows:** `ipconfig` → "IPv4 Address", e.g. `192.168.1.20`
+   - **macOS:** `ipconfig getifaddr en0`
+   - **Linux:** `hostname -I`
+2. Start the servers so other devices can reach them:
+
+   ```sh
+   npm run dev:lan
+   ```
+
+3. On your phone, open **http://192.168.1.20:3000** (your IP), start a table, and share the link with friends on the same Wi-Fi.
+
+> [!IMPORTANT]
+> If phones can't connect, your computer's firewall is probably blocking ports **3000** and **4000**. Allow Node.js through the firewall when your computer asks.
+
+To play with friends who are **not** on your Wi-Fi, deploy it to the VPS (below).
+
+---
+
+## 🎮 How to play
+
+| On screen | What it does |
+| :-- | :-- |
+| **Your hand** (bottom) | Held as a fan, sorted by suit then number, like real cards. Cards with a green ring can be played now. Tap to select, and tap more cards of the same rank to drop them together. Power cards carry a small mark under the corner: ★ change suit, +2, +3, ? question, ⤼ skip, ⇄ kickback. |
+| **Play** | Plays the selected cards. Playing an ace opens a sheet to ask for a suit. |
+| **Draw** / **Pick N** | Draw one card, or pick up the cards a 2 or 3 is making you take. Tapping the deck does the same. |
+| **Niko kadi!** | Call it when everything left in your hand can go out on your next turn. With the default rules, you can't finish without calling it first. |
+| **Played pile** (middle) | The last five cards played step up behind the top card, so you can read each one's number and suit, like a real table. |
+| **Big callout** (over the table) | Every play pops up in large text, for example **2♥** and "Otieno played 2♥. Next player picks 2!", then shrinks and fades away within 3 seconds. With reduced motion turned on, it just fades. |
+| **Players** (top) | Each friend's card count. A green ring shows whose turn it is. |
+
+**Default house rules** (the host can change them in the lobby):
+
+- You must call *"Niko kadi!"* on an earlier turn before you go out (calling and finishing in the same turn doesn't count).
+- You can't finish on a power card (A, 2, 3, 8, J, Q, K).
+- An ace blocks a pick-up.
+- 2s and 3s stack on each other.
+- Four cards each.
+
+---
+
+## 🤖 Play against the computer
+
+**Quick practice:** on the landing page, under *Or practise against the computer*, pick 1 to 3 opponents and a level, then tap **Play vs computer**. You're dealt in straight away.
+
+**Fill empty seats:** in any lobby, the host can tap **🤖 Easy** or **🤖 Normal** to add a computer player, and the **×** on its seat to remove it. Friends and computer players can share a table.
+
+| Level | How it plays |
+| :-- | :-- |
+| **Easy** | Plays one random legal card at a time and often forgets to call *"Niko kadi!"*. Good for learning the rules. |
+| **Normal** | Stacks back on pick-ups, saves its aces, drops several cards at once, sets up question-and-answer combos, punishes players close to winning, and never forgets to call. |
+
+In 3,000 simulated head-to-head games, Normal beats Easy about 7 times in 10. Kadi has plenty of luck, so anyone can still win. Computer players wait about a second before moving, so you can follow what they did.
+
+---
+
+## ♿ Accessibility
+
+Every text and background pair was checked against **WCAG 2.2 AA** in both light and dark mode: at least **4.5:1** for text, and **3:1** for input borders, toggles and the "playable card" ring. Checks were automated with [axe-core](https://github.com/dequelabs/axe-core) on the landing page, join screen, lobby and game board, and every colour token pair was calculated by hand.
+
+<details>
+<summary>What changed to pass</summary>
+
+| Problem | Fix |
+| :-- | :-- |
+| Card red `#E0352B` was 4.46:1 on white | Now `#C42B22`, 5.6:1 |
+| In dark mode the felt table and table-code box turned pale, hiding their text (1.2:1) | Both now stay dark green in every mode (`--felt`, `--night`) |
+| Input and toggle borders were too faint (1.3:1) | New `--field` border colour, 3.7:1 or better |
+| Unplayable cards were faded with transparency, which hid their labels | Now greyed out and lowered instead, so text keeps full contrast |
+| Error text in dark mode was 4.1:1 | Dark mode uses a lighter red, `#FF8A7A`, 8:1 |
+| "Away" players and empty seats used transparency | Replaced with outlines and solid text colours |
+
+</details>
+
+Also built in: 44 to 56px touch targets, visible focus outlines, labels on every input, screen-reader names for cards, and reduced motion when your phone asks for it.
 
 ---
 
 ## 🐳 Deploying to a VPS
 
-The app ships as a small Docker image that runs anywhere, including the KVM2 VPS it is headed for.
+Everything runs with Docker Compose: the website, the game server, and [Caddy](https://caddyserver.com) in front, which gets free HTTPS certificates automatically. HTTPS will also be required for voice chat, because browsers only allow the microphone on secure sites.
+
+**You need** a Linux VPS with Docker installed, and ports 80 and 443 open.
 
 ```sh
-# on the VPS, inside the cloned repo
-cp .env.example .env          # set NEXT_PUBLIC_SITE_URL to your address
-docker compose up -d --build  # builds and starts the web app on port 3000
-curl http://127.0.0.1:3000/api/health   # → {"ok":true}
+git clone https://github.com/KinaraGeorge/niko-kadi.git
+cd niko-kadi
+cp .env.example .env
+# Edit .env and set SITE_ADDRESS. With no domain yet, use your IP with dashes plus sslip.io:
+#   SITE_ADDRESS=2-25-6-88.sslip.io
+docker compose up -d --build
 ```
 
-The container only listens on `127.0.0.1`, so put a reverse proxy such as [Caddy](https://caddyserver.com) in front for HTTPS. HTTPS is required anyway once voice chat lands, because browsers only allow the microphone on secure sites. Until there is a real domain, a free hostname like `<your-ip>.sslip.io` works.
+Then open `https://<your SITE_ADDRESS>` and share that link. [sslip.io](https://sslip.io) is a free service that turns any IP address into a hostname, so Caddy can get a real certificate without you buying a domain.
 
 <details>
-<summary>Minimal Caddyfile</summary>
+<summary>What each service does</summary>
 
-```caddy
-your-ip.sslip.io {
-  reverse_proxy 127.0.0.1:3000
-}
-```
+| Service | Port (inside Docker) | Job |
+| :-- | :-- | :-- |
+| `caddy` | 80, 443 (public) | HTTPS, sends `/socket.io/*` to the game server and everything else to the website |
+| `web` | 3000 | The Next.js website |
+| `game` | 4000 | The real-time game server |
 
-Caddy fetches and renews the HTTPS certificate on its own.
+Useful commands: `docker compose logs -f game`, `docker compose restart`, `git pull && docker compose up -d --build` to update.
 
 </details>
+
+> [!WARNING]
+> Tables live in the game server's memory. Restarting or updating the game server ends any games in progress, so update when nobody is playing.
+
+---
+
+## 🧠 How it works
+
+```text
+ phone ──HTTPS──► Caddy ──► web  (Next.js: pages, lobby and table screens)
+   │                 └────► game (Socket.IO: tables, dealing, checking every move)
+   └──── WebSocket ──┘            │
+                                  └─ uses src/game/rules.ts, the same rules code the browser uses
+```
+
+- **The server is the dealer.** It shuffles, keeps every hand, checks each move with the rules engine, and sends each player a private view: your own cards, and only a count for everyone else.
+- **One rules engine, two places.** `src/game/rules.ts` is plain TypeScript. The server uses it to enforce the rules; the browser uses it to highlight playable cards.
+- **Seats survive drops.** Joining gives you a secret seat token, saved in your browser. Reconnecting with it puts you back in the same seat.
+- **Tables are temporary.** They live in memory and are cleared after six quiet hours.
+
+More detail, including the voice chat plan, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
@@ -159,21 +280,32 @@ Caddy fetches and renews the HTTPS certificate on its own.
 niko-kadi/
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx         ← fonts, page metadata, phone theme colours
-│   │   ├── page.tsx           ← the landing page, assembled from sections
-│   │   ├── globals.css        ← design tokens and all styles
-│   │   ├── manifest.ts        ← "Add to Home Screen" support
-│   │   ├── icon.svg           ← the K logo used as favicon and app icon
-│   │   └── api/health/        ← health check for Docker and the proxy
-│   ├── components/            ← one file per section (Hero, InviteBuilder, PowerCards…)
-│   └── lib/                   ← site settings, power-card data, table-code helper
-├── design/
-│   ├── index.html             ← original single-file design, the visual reference
-│   └── HANDOFF.md             ← design brief and decisions to keep
-├── docs/ARCHITECTURE.md       ← plan for online play, voice chat and hosting
-├── Dockerfile                 ← production image (Next.js standalone)
-├── compose.yaml               ← runs it on the VPS, with slots for game and voice servers
-└── .env.example               ← settings to copy into .env
+│   │   ├── page.tsx               ← landing page
+│   │   ├── t/[code]/page.tsx      ← a table: join, lobby, game (the link you share)
+│   │   ├── layout.tsx             ← fonts, metadata, phone theme colours
+│   │   ├── globals.css            ← design tokens and all styles
+│   │   ├── manifest.ts            ← "Add to Home Screen" support
+│   │   └── api/health/            ← health check
+│   ├── components/
+│   │   ├── game/                  ← TableClient, Lobby, GameBoard, PlayingCard, ShareInvite…
+│   │   └── *.tsx                  ← landing page sections
+│   ├── game/
+│   │   ├── rules.ts               ← the Kadi rules engine (no network code)
+│   │   ├── rules.test.ts          ← one test per rule
+│   │   ├── bot.ts                 ← computer players (easy, normal)
+│   │   ├── bot.test.ts            ← bots play hundreds of games: always legal, normal beats easy
+│   │   └── protocol.ts            ← messages between browser and server
+│   └── lib/socket.ts              ← connects the browser to the game server
+├── server/
+│   ├── index.ts                   ← Socket.IO game server
+│   └── tables.ts                  ← tables, seats, rejoining, house rules
+├── scripts/smoke.ts               ← robot players for an end-to-end test
+├── design/                        ← original design file and brief
+├── docs/ARCHITECTURE.md           ← how it fits together, voice plan, hosting
+├── Dockerfile                     ← builds the web and game images
+├── compose.yaml                   ← web + game + Caddy
+├── Caddyfile                      ← HTTPS and routing
+└── .env.example                   ← settings to copy into .env
 ```
 
 ---
@@ -182,13 +314,13 @@ niko-kadi/
 
 | Choice | Why |
 | :-- | :-- |
-| **Next.js (App Router)** | Pre-rendered pages load fast on mobile data, and the same project grows into the full app. |
-| **TypeScript, strict** | Catches mistakes early, which matters once the rules engine arrives. |
-| **Plain CSS with tokens** | Keeps the design pixel-exact and the download tiny. No CSS framework needed. |
+| **Next.js (App Router)** | Fast pre-rendered pages on mobile data, and one project for the site and the game screens. |
+| **Socket.IO** | Real-time moves with automatic reconnects, which matters on flaky mobile networks. |
+| **Shared TypeScript rules engine** | One source of truth for the rules, fully unit tested. |
+| **Plain CSS with tokens** | Keeps the design exact and the download tiny. |
 | **`next/font`** | Fonts are bundled at build time, so phones never wait on Google Fonts. |
-| **Standalone output + Docker** | Runs on any VPS with plain Node. No dependency on Vercel. |
-| **Socket.IO game server** *(next)* | Real-time moves with automatic reconnects on flaky networks. |
-| **LiveKit, self-hosted** *(later)* | Open-source voice server: push-to-talk, mute, deafen, noise suppression, per-person volume. |
+| **Docker Compose + Caddy** | One command to run everything on a VPS, with automatic HTTPS. |
+| **LiveKit, self-hosted** *(next)* | Open-source voice server: push-to-talk, mute, deafen, noise suppression, per-person volume. |
 
 ---
 
@@ -227,50 +359,58 @@ Every colour is a CSS variable, so light and dark mode switch automatically with
 
 ---
 
-## 🧭 Page walkthrough
+## 🛠 Troubleshooting
 
-From top to bottom:
+<details>
+<summary>"Connecting…" never goes away</summary>
 
-1. **Hero:** the *"Niko kadi!"* headline with a **tappable fan of five power cards**, the page's one bold move.
-2. **Invite builder:** name your table, add friends, get a code and link with a copy button, and see six seats fill around a felt table.
-3. **Power cards:** the rules grid from the table above.
-4. **How a night goes:** three steps. Make a table, send the code, deal and talk.
-5. **Call-out banner:** one last *"Niko kadi!"* push to start a game.
-6. **Footer:** free to play, no real money, ever.
+The game server isn't reachable. Make sure `npm run dev` shows a `[game]` line saying it is listening on port 4000. On another device, check the firewall (see [Play with friends on your Wi-Fi](#-play-with-friends-on-your-wi-fi)).
 
----
+</details>
 
-## ⚠️ Placeholders and limits
+<details>
+<summary>"No table with that code"</summary>
 
-| What | Status |
-| :--- | :--- |
-| `kadinight.app` domain | Placeholder. Not a real site yet. |
-| `KADI-XXX` invite codes | Generated in the browser for show only. |
-| Invite builder | Front end only. No backend, accounts or storage. |
-| `NEXT_PUBLIC_SITE_URL` | Defaults to the placeholder. Set it in `.env` on the server. |
-| The game itself | Not started. See the roadmap. |
+Tables live in memory, so restarting the game server clears them. Start a new table. Also check the code: codes never use the look-alike characters O, 0, I, 1 or L.
+
+</details>
+
+<details>
+<summary>Two windows show up as the same player</summary>
+
+Your seat is saved in the browser. Use an incognito window or a different browser for each extra player.
+
+</details>
+
+<details>
+<summary>Port 3000 or 4000 is already in use</summary>
+
+Another program is using it. Close it, or start the website on another port with `npx next dev -p 3001` (the game server stays on 4000).
+
+</details>
 
 ---
 
 ## 🛣 Roadmap
 
 - [x] Landing page design (mobile first, light and dark mode)
-- [x] Design brief and handoff notes
 - [x] Next.js app with the landing page ported into components
-- [x] Docker image and compose file for the VPS
-- [ ] **Milestone: share a link and play with friends**
-  - [ ] Rules engine with adjustable house rules
-  - [ ] Real-time game server: create table, join by code, play
-  - [ ] In-game table screen for phones, with the *"Niko kadi!"* call
-  - [ ] Deploy to the VPS with HTTPS
+- [x] Rules engine with adjustable house rules, fully tested
+- [x] Real-time game server: create table, join by link or code, play
+- [x] Phone-first table screen with the *"Niko kadi!"* call
+- [x] Reconnect to your seat after a refresh or a dropped connection
+- [x] Docker Compose with automatic HTTPS
+- [x] Computer players (easy and normal)
+- [x] Colour contrast checked to WCAG 2.2 AA in light and dark mode
+- [ ] **Deploy to the VPS and play with friends over the internet**
 - [ ] Table voice chat: open mic or push-to-talk, noise suppression, mute, deafen, per-person volume
-- [ ] Rules explainer page, rematches and stats
+- [ ] Rematch stats, rules explainer page, sounds and animations
 
 ---
 
 ## 🤝 Contributing
 
-This project is in its early design stage. Ideas, house rules from your family's table and bug reports are welcome as [issues](https://github.com/KinaraGeorge/niko-kadi/issues).
+Ideas, house rules from your family's table and bug reports are welcome as [issues](https://github.com/KinaraGeorge/niko-kadi/issues). Before opening a pull request, run `npm test` and `npm run typecheck`.
 
 ---
 

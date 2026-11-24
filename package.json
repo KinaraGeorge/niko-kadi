@@ -4,10 +4,18 @@
   "private": true,
   "description": "Kadi Night: invite your friends to an online game of Kenyan poker (Kadi).",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "concurrently -n web,game -c green,yellow \"npm:dev:web\" \"npm:dev:game\"",
+    "dev:web": "next dev",
+    "dev:game": "tsx watch server/index.ts",
+    "build": "npm run build:web && npm run build:game",
+    "build:web": "next build",
+    "build:game": "esbuild server/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/game-server.mjs --external:bufferutil --external:utf-8-validate --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\"",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "start:game": "node dist/game-server.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "smoke": "tsx scripts/smoke.ts",
+    "dev:lan": "concurrently -n web,game -c green,yellow \"next dev -H 0.0.0.0\" \"npm:dev:game\""
   },
   "engines": {
     "node": ">=20.9"
@@ -15,12 +23,18 @@
   "dependencies": {
     "next": "^16.4.6",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "typescript": "^7.0.2"
+    "concurrently": "^10.0.7",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
   }
 }

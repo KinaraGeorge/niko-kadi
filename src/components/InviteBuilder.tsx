@@ -1,109 +1,171 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
-import { previewCode } from "@/lib/tableCode";
-import { site } from "@/lib/site";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { MAX_SEATS, NAME_MAX, TABLE_NAME_MAX, normaliseCode } from "@/game/protocol";
+import { emit, savedName, saveName, saveToken } from "@/lib/socket";
 
-const host = site.url.replace(/^https?:\/\//, "");
-
-/**
- * Live preview of the invite flow. Front end only for now:
- * the game server will create real tables and codes later.
- */
+/** Start a real table (or join one by code) right from the landing page. */
 export function InviteBuilder() {
+  const router = useRouter();
   const [tableName, setTableName] = useState("Jumamosi Boys");
-  const [friendName, setFriendName] = useState("");
-  const [friends, setFriends] = useState<string[]>(["Wanjiru", "Otieno"]);
-  const [status, setStatus] = useState("Friends join with one tap. No account needed.");
+  const [name, setName] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [status, setStatus] = useState("Friends join from the link. No account needed.");
+  const [busy, setBusy] = useState(false);
+  const [bots, setBots] = useState(2);
+  const [level, setLevel] = useState<"easy" | "normal">("normal");
 
-  const code = previewCode(tableName);
-  const link = `${host}/t/${code}`;
-  const seats = ["You", ...friends];
+  useEffect(() => setName(savedName()), []);
 
-  function addFriend() {
-    const name = friendName.trim();
-    if (!name) return setStatus("Type a name first.");
-    if (seats.length >= site.maxSeats) return setStatus(`The table is full. ${site.maxSeats} seats max.`);
-    setFriends([...friends, name]);
-    setFriendName("");
-    setStatus(`${name} has a seat.`);
-  }
-
-  async function copyInvite() {
-    const text = `Niko kadi? Join ${tableName.trim() || "my table"} on ${site.name}: ${link} (code KADI-${code})`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setStatus("Copied. Paste it in the group chat.");
-    } catch {
-      setStatus("Copy blocked. Select the code and share it by hand.");
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return setStatus("Add your name so friends know who's inviting them.");
+    setBusy(true);
+    setStatus("Setting the table…");
+    const r = await emit<{ code: string; token: string }>((s, ack) =>
+      s.emit("table:create", { tableName, name: name.trim() }, ack),
+    );
+    if (!r.ok) {
+      setBusy(false);
+      return setStatus(r.error);
     }
+    saveName(name.trim());
+    saveToken(r.code, r.token);
+    router.push(`/t/${r.code}`);
   }
 
-  function onFriendKey(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") addFriend();
+  /** Practice: a private table with computer players, dealt straight away. */
+  async function practice() {
+    const me = name.trim() || "You";
+    setBusy(true);
+    setStatus("Shuffling…");
+    const r = await emit<{ code: string; token: string }>((s, ack) =>
+      s.emit("table:create", { tableName: "Practice table", name: me }, ack),
+    );
+    if (!r.ok) {
+      setBusy(false);
+      return setStatus(r.error);
+    }
+    saveToken(r.code, r.token);
+    if (name.trim()) saveName(name.trim());
+    for (let i = 0; i < bots; i++) await emit((s, ack) => s.emit("table:addBot", { level }, ack));
+    const dealt = await emit((s, ack) => s.emit("table:start", ack));
+    if (!dealt.ok) setStatus(dealt.error);
+    router.push(`/t/${r.code}`);
   }
+
+  function join(e: React.FormEvent) {
+    e.preventDefault();
+    const code = normaliseCode(joinCode);
+    if (code.length < 4) return setStatus("Table codes look like KADI-7HJ2.");
+    router.push(`/t/${code}`);
+  }
+
+  const preview = [name.trim() || "You"];
 
   return (
     <div className="invite">
       <div className="panel">
-        <div className="field">
-          <label htmlFor="tname">Table name</label>
-          <input
-            type="text"
-            id="tname"
-            value={tableName}
-            maxLength={22}
-            autoComplete="off"
-            onChange={(e) => setTableName(e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="fname">Add a friend</label>
-          <div className="input-row">
+        <form onSubmit={create}>
+          <div className="field">
+            <label htmlFor="tname">Table name</label>
             <input
               type="text"
-              id="fname"
-              placeholder="Wanjiru"
-              maxLength={12}
+              id="tname"
+              value={tableName}
+              maxLength={TABLE_NAME_MAX}
               autoComplete="off"
-              enterKeyHint="done"
-              value={friendName}
-              onChange={(e) => setFriendName(e.target.value)}
-              onKeyDown={onFriendKey}
+              onChange={(e) => setTableName(e.target.value)}
             />
-            <button type="button" className="add" aria-label="Add friend" onClick={addFriend}>
-              +
-            </button>
           </div>
-        </div>
-        <div className="code">
-          <div>
-            <small>Table code</small>
-            <strong>KADI-{code}</strong>
-            <span>{link}</span>
+          <div className="field">
+            <label htmlFor="yname">Your name</label>
+            <input
+              type="text"
+              id="yname"
+              placeholder="Type your name"
+              maxLength={NAME_MAX}
+              autoComplete="nickname"
+              enterKeyHint="go"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
-          <button type="button" className="copy" onClick={copyInvite}>
-            Copy
+          <button className="btn btn-main btn-block create-btn" type="submit" disabled={busy}>
+            {busy ? "Setting the table…" : "Start a table"}
+          </button>
+        </form>
+
+        <div className="practice">
+          <p className="practice-title">Or practise against the computer</p>
+          <div className="practice-row">
+            <div>
+              <p className="seg-label" id="opp-label">Opponents</p>
+              <div className="seg" role="group" aria-labelledby="opp-label">
+                {[1, 2, 3].map((n) => (
+                  <button key={n} type="button" aria-pressed={bots === n} onClick={() => setBots(n)}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="seg-label" id="lvl-label">Level</p>
+              <div className="seg" role="group" aria-labelledby="lvl-label">
+                {(["easy", "normal"] as const).map((l) => (
+                  <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)}>
+                    {l === "easy" ? "Easy" : "Normal"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <button type="button" className="btn btn-ghost btn-block" onClick={practice} disabled={busy}>
+            🤖 Play vs computer
           </button>
         </div>
-        <p className="note" aria-live="polite">{status}</p>
+
+        <form className="code join-code" onSubmit={join}>
+          <div>
+            <small>Got a code?</small>
+            <label htmlFor="jcode" className="sr-only">
+              Table code
+            </label>
+            <input
+              id="jcode"
+              type="text"
+              inputMode="text"
+              autoCapitalize="characters"
+              autoComplete="off"
+              placeholder="KADI-7HJ2"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+            />
+          </div>
+          <button type="submit" className="copy">
+            Join
+          </button>
+        </form>
+        <p className="note" aria-live="polite">
+          {status}
+        </p>
       </div>
 
       <ul className="table" aria-label="Seats at the table">
-        {Array.from({ length: site.maxSeats }, (_, i) => {
-          const name = seats[i];
-          return name ? (
+        {Array.from({ length: MAX_SEATS }, (_, i) =>
+          preview[i] ? (
             <li className="seat" key={`seat-${i}`}>
-              <i aria-hidden="true">{name.charAt(0).toUpperCase()}</i>
-              <span>{name}</span>
+              <i aria-hidden="true">{preview[i].charAt(0).toUpperCase()}</i>
+              <span>{preview[i]}</span>
             </li>
           ) : (
             <li className="seat empty" key={`seat-${i}`}>
               <i aria-hidden="true">+</i>
               <span>Open seat</span>
             </li>
-          );
-        })}
+          ),
+        )}
       </ul>
     </div>
   );

@@ -1,7 +1,6 @@
-node_modules
-.next
-.git
-design
-docs
-*.md
 .env*
+.git
+.next
+design
+dist
+node_modules

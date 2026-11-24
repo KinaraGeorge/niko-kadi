@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
+  // Let phones on your home Wi-Fi load the dev server (npm run dev:lan).
+  // Only affects `next dev`; production is unaffected.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*", "*.local"],
 };
 
 export default nextConfig;
