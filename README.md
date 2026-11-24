@@ -11,7 +11,8 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 ![Next.js](https://img.shields.io/badge/Next.js-16-0C2A1B?style=for-the-badge&logo=nextdotjs)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-realtime-0B5D3A?style=for-the-badge&logo=socketdotio)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0B5D3A?style=for-the-badge&logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/rules%20tests-29%20passing-C9F25A?style=for-the-badge&labelColor=0C2A1B)
+![Tests](https://img.shields.io/badge/tests-34%20passing-C9F25A?style=for-the-badge&labelColor=0C2A1B)
+![WCAG](https://img.shields.io/badge/contrast-WCAG%202.2%20AA-0B5D3A?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-ready-C9F25A?style=for-the-badge&logo=docker&labelColor=0C2A1B)
 ![License](https://img.shields.io/badge/license-not%20chosen%20yet-42604F?style=for-the-badge)
 ![Free to play](https://img.shields.io/badge/real%20money-never-E0352B?style=for-the-badge)
@@ -30,6 +31,8 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 - [Run it on your computer](#-run-it-on-your-computer)
 - [Play with friends on your Wi-Fi](#-play-with-friends-on-your-wi-fi)
 - [How to play](#-how-to-play)
+- [Play against the computer](#-play-against-the-computer)
+- [Accessibility](#-accessibility)
 - [Deploying to a VPS](#-deploying-to-a-vps)
 - [How it works](#-how-it-works)
 - [Project structure](#-project-structure)
@@ -55,6 +58,7 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 3. The host picks house rules and deals.
 4. Everyone plays in real time from their own phone, with the full power-card rules.
 5. Refresh or lose signal and you land back in your seat with the same hand.
+6. Nobody around? Practise against computer players, or fill empty seats with them.
 
 > [!NOTE]
 > Voice chat is the next milestone. Until then, keep your WhatsApp call going while you play.
@@ -64,12 +68,13 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 ## ✨ Features
 
 - 🃏 **Real Kadi rules:** pick two, pick three, skip, kickback, questions, change suit, and the *"Niko kadi!"* call.
+- 🤖 **Computer players:** easy or normal, for practice or to fill empty seats.
 - 🏠 **House rules per table:** switch stacking, ace blocking, finishing rules and cards dealt.
 - 📱 **Built for one hand on a phone:** big tap targets, your hand at the thumb, a buzz when it's your turn.
 - 🔗 **Share anywhere:** the phone's share sheet, WhatsApp, or copy the link.
 - 🔄 **Reconnects on its own:** your seat is saved in the browser.
 - 🔒 **No cheating by peeking:** the server deals and only ever sends you your own cards.
-- 🌗 **Light and dark mode** that follow your phone's setting.
+- 🌗 **Light and dark mode** that follow your phone's setting, both checked against WCAG 2.2 AA contrast.
 - 🇰🇪 **Kenyan through and through:** flag stripe, Swahili touches, the rules you know.
 - 🐳 **Self-hostable:** Docker Compose with automatic HTTPS. No Vercel-only features.
 
@@ -126,7 +131,7 @@ You'll see two coloured streams of logs: `[web]` for the website and `[game]` fo
 | Command | What it does |
 | :-- | :-- |
 | `npm run dev` | Website on port 3000 and game server on port 4000, both reload when you edit |
-| `npm test` | Runs the 29 rules-engine tests |
+| `npm test` | Runs the 34 tests (rules engine and computer players) |
 | `npm run smoke` | Three robot players play full games against a running game server |
 | `npm run typecheck` | TypeScript check |
 | `npm run build` | Production build of the website and the game server |
@@ -168,11 +173,48 @@ To play with friends who are **not** on your Wi-Fi, deploy it to the VPS (below)
 
 **Default house rules** (the host can change them in the lobby):
 
-- You must call *"Niko kadi!"* before you go out.
+- You must call *"Niko kadi!"* on an earlier turn before you go out (calling and finishing in the same turn doesn't count).
 - You can't finish on a power card (A, 2, 3, 8, J, Q, K).
 - An ace blocks a pick-up.
 - 2s and 3s stack on each other.
 - Four cards each.
+
+---
+
+## 🤖 Play against the computer
+
+**Quick practice:** on the landing page, under *Or practise against the computer*, pick 1 to 3 opponents and a level, then tap **Play vs computer**. You're dealt in straight away.
+
+**Fill empty seats:** in any lobby, the host can tap **🤖 Easy** or **🤖 Normal** to add a computer player, and the **×** on its seat to remove it. Friends and computer players can share a table.
+
+| Level | How it plays |
+| :-- | :-- |
+| **Easy** | Plays one random legal card at a time and often forgets to call *"Niko kadi!"*. Good for learning the rules. |
+| **Normal** | Stacks back on pick-ups, saves its aces, drops several cards at once, sets up question-and-answer combos, punishes players close to winning, and never forgets to call. |
+
+In 3,000 simulated head-to-head games, Normal beats Easy about 7 times in 10. Kadi has plenty of luck, so anyone can still win. Computer players wait about a second before moving, so you can follow what they did.
+
+---
+
+## ♿ Accessibility
+
+Every text and background pair was checked against **WCAG 2.2 AA** in both light and dark mode: at least **4.5:1** for text, and **3:1** for input borders, toggles and the "playable card" ring. Checks were automated with [axe-core](https://github.com/dequelabs/axe-core) on the landing page, join screen, lobby and game board, and every colour token pair was calculated by hand.
+
+<details>
+<summary>What changed to pass</summary>
+
+| Problem | Fix |
+| :-- | :-- |
+| Card red `#E0352B` was 4.46:1 on white | Now `#C42B22`, 5.6:1 |
+| In dark mode the felt table and table-code box turned pale, hiding their text (1.2:1) | Both now stay dark green in every mode (`--felt`, `--night`) |
+| Input and toggle borders were too faint (1.3:1) | New `--field` border colour, 3.7:1 or better |
+| Unplayable cards were faded with transparency, which hid their labels | Now greyed out and lowered instead, so text keeps full contrast |
+| Error text in dark mode was 4.1:1 | Dark mode uses a lighter red, `#FF8A7A`, 8:1 |
+| "Away" players and empty seats used transparency | Replaced with outlines and solid text colours |
+
+</details>
+
+Also built in: 44 to 56px touch targets, visible focus outlines, labels on every input, screen-reader names for cards, and reduced motion when your phone asks for it.
 
 ---
 
@@ -246,7 +288,9 @@ niko-kadi/
 │   │   └── *.tsx                  ← landing page sections
 │   ├── game/
 │   │   ├── rules.ts               ← the Kadi rules engine (no network code)
-│   │   ├── rules.test.ts          ← 29 tests, one per rule
+│   │   ├── rules.test.ts          ← one test per rule
+│   │   ├── bot.ts                 ← computer players (easy, normal)
+│   │   ├── bot.test.ts            ← bots play hundreds of games: always legal, normal beats easy
 │   │   └── protocol.ts            ← messages between browser and server
 │   └── lib/socket.ts              ← connects the browser to the game server
 ├── server/
@@ -353,6 +397,8 @@ Another program is using it. Close it, or start the website on another port with
 - [x] Phone-first table screen with the *"Niko kadi!"* call
 - [x] Reconnect to your seat after a refresh or a dropped connection
 - [x] Docker Compose with automatic HTTPS
+- [x] Computer players (easy and normal)
+- [x] Colour contrast checked to WCAG 2.2 AA in light and dark mode
 - [ ] **Deploy to the VPS and play with friends over the internet**
 - [ ] Table voice chat: open mic or push-to-talk, noise suppression, mute, deafen, per-person volume
 - [ ] Rematch stats, rules explainer page, sounds and animations

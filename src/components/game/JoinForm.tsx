@@ -41,7 +41,7 @@ export function JoinForm({ code, tableName, error, defaultName, onJoin }: Props)
             maxLength={NAME_MAX}
             autoComplete="nickname"
             enterKeyHint="go"
-            placeholder="Wanjiru"
+            placeholder="Type your name"
             autoFocus
             onChange={(e) => setName(e.target.value)}
           />

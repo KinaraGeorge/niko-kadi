@@ -57,6 +57,8 @@ export interface Player {
   hand: Card[];
   /** Called "Niko kadi!" and has not drawn since. */
   declared: boolean;
+  /** The turnCount when they called it. You can only go out on a later turn. */
+  declaredAt: number;
 }
 
 export interface GameState {
@@ -78,6 +80,8 @@ export interface GameState {
   log: string[];
   /** Increases with every move, handy for clients to spot changes. */
   version: number;
+  /** Increases every time the turn passes to someone. */
+  turnCount: number;
 }
 
 export type Move =
@@ -118,7 +122,7 @@ export function deal(
   if (seats.length < 2) throw new Error("Kadi needs at least 2 players.");
   if (seats.length * rules.startHand > 40) throw new Error("Too many cards for one deck.");
   const deck = shuffle(newDeck(), rng);
-  const players: Player[] = seats.map((s) => ({ id: s.id, name: s.name, hand: [], declared: false }));
+  const players: Player[] = seats.map((s) => ({ id: s.id, name: s.name, hand: [], declared: false, declaredAt: -1 }));
   for (let i = 0; i < rules.startHand; i++) for (const p of players) p.hand.push(deck.pop()!);
   const startIdx = deck.findIndex((c) => !isPower(c));
   const [start] = deck.splice(startIdx, 1);
@@ -135,6 +139,7 @@ export function deal(
     rules,
     log: [`New game. Starting card ${cardLabel(start)}.`],
     version: 1,
+    turnCount: 0,
   };
 }
 
@@ -185,6 +190,7 @@ function clone(s: GameState): GameState {
 }
 
 function step(s: GameState, by: number) {
+  s.turnCount++;
   const n = s.players.length;
   s.turn = (((s.turn + s.direction * by) % n) + n) % n;
 }
@@ -220,6 +226,7 @@ export function applyMove(prev: GameState, playerId: string, move: Move, rng: Rn
     if (!p) return { ok: false, error: "You are not in this game." };
     if (p.declared) return { ok: false, error: "You already called it." };
     p.declared = true;
+    p.declaredAt = s.turnCount;
     addLog(s, `${p.name}: "Niko kadi!"`);
     s.version++;
     return { ok: true, state: s };
@@ -258,6 +265,9 @@ export function applyMove(prev: GameState, playerId: string, move: Move, rng: Rn
     if (s.rules.requireNikoKadi && !me.declared) {
       return { ok: false, error: "Call \"Niko kadi!\" first. You can go out on your next turn." };
     }
+    if (s.rules.requireNikoKadi && me.declaredAt >= s.turnCount) {
+      return { ok: false, error: "You called it this turn. You can go out on your next turn." };
+    }
     if (s.rules.noFinishOnPower && isPower(cards[cards.length - 1])) {
       return { ok: false, error: "You can't finish on a power card. Keep it for later or draw." };
     }
@@ -269,7 +279,10 @@ export function applyMove(prev: GameState, playerId: string, move: Move, rng: Rn
 
   me.hand = handAfter;
   s.discard.push(...cards);
-  if (move.declare) me.declared = true;
+  if (move.declare && !me.declared) {
+    me.declared = true;
+    me.declaredAt = s.turnCount;
+  }
   const label = cards.map(cardLabel).join(" ");
   const n = cards.length;
   const wasAnswering = s.mustAnswer;

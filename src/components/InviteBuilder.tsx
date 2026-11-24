@@ -13,6 +13,8 @@ export function InviteBuilder() {
   const [joinCode, setJoinCode] = useState("");
   const [status, setStatus] = useState("Friends join from the link. No account needed.");
   const [busy, setBusy] = useState(false);
+  const [bots, setBots] = useState(2);
+  const [level, setLevel] = useState<"easy" | "normal">("normal");
 
   useEffect(() => setName(savedName()), []);
 
@@ -30,6 +32,26 @@ export function InviteBuilder() {
     }
     saveName(name.trim());
     saveToken(r.code, r.token);
+    router.push(`/t/${r.code}`);
+  }
+
+  /** Practice: a private table with computer players, dealt straight away. */
+  async function practice() {
+    const me = name.trim() || "You";
+    setBusy(true);
+    setStatus("Shuffling…");
+    const r = await emit<{ code: string; token: string }>((s, ack) =>
+      s.emit("table:create", { tableName: "Practice table", name: me }, ack),
+    );
+    if (!r.ok) {
+      setBusy(false);
+      return setStatus(r.error);
+    }
+    saveToken(r.code, r.token);
+    if (name.trim()) saveName(name.trim());
+    for (let i = 0; i < bots; i++) await emit((s, ack) => s.emit("table:addBot", { level }, ack));
+    const dealt = await emit((s, ack) => s.emit("table:start", ack));
+    if (!dealt.ok) setStatus(dealt.error);
     router.push(`/t/${r.code}`);
   }
 
@@ -62,7 +84,7 @@ export function InviteBuilder() {
             <input
               type="text"
               id="yname"
-              placeholder="Wanjiru"
+              placeholder="Type your name"
               maxLength={NAME_MAX}
               autoComplete="nickname"
               enterKeyHint="go"
@@ -74,6 +96,35 @@ export function InviteBuilder() {
             {busy ? "Setting the table…" : "Start a table"}
           </button>
         </form>
+
+        <div className="practice">
+          <p className="practice-title">Or practise against the computer</p>
+          <div className="practice-row">
+            <div>
+              <p className="seg-label" id="opp-label">Opponents</p>
+              <div className="seg" role="group" aria-labelledby="opp-label">
+                {[1, 2, 3].map((n) => (
+                  <button key={n} type="button" aria-pressed={bots === n} onClick={() => setBots(n)}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="seg-label" id="lvl-label">Level</p>
+              <div className="seg" role="group" aria-labelledby="lvl-label">
+                {(["easy", "normal"] as const).map((l) => (
+                  <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)}>
+                    {l === "easy" ? "Easy" : "Normal"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <button type="button" className="btn btn-ghost btn-block" onClick={practice} disabled={busy}>
+            🤖 Play vs computer
+          </button>
+        </div>
 
         <form className="code join-code" onSubmit={join}>
           <div>

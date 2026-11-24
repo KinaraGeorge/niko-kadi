@@ -114,6 +114,7 @@ export function GameBoard({ snap, onLeave }: Props) {
   const winner = g.winnerId ? g.players.find((p) => p.id === g.winnerId) : null;
   const isHost = snap.seats.find((s) => s.id === me.id)?.host;
   const away = new Set(snap.seats.filter((s) => !s.connected).map((s) => s.id));
+  const bots = new Set(snap.seats.filter((s) => s.bot).map((s) => s.id));
 
   let status: React.ReactNode;
   if (!me.inGame) status = "You're watching. You'll be dealt in next round.";
@@ -138,8 +139,11 @@ export function GameBoard({ snap, onLeave }: Props) {
       <ul className="opps wrap" aria-label="Other players">
         {others.map((p) => (
           <li key={p.id} className={`opp${p.id === g.turnId ? " turn" : ""}${away.has(p.id) ? " away" : ""}`}>
-            <i aria-hidden="true">{p.name.charAt(0).toUpperCase()}</i>
-            <span className="opp-name">{p.name}</span>
+            <i aria-hidden="true">{bots.has(p.id) ? "🤖" : p.name.charAt(0).toUpperCase()}</i>
+            <span className="opp-name">
+              {p.name}
+              {bots.has(p.id) ? <span className="sr-only"> (computer)</span> : null}
+            </span>
             <span className="opp-count">
               {p.count} card{p.count === 1 ? "" : "s"}
             </span>

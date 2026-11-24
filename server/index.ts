@@ -9,7 +9,8 @@ import { createServer } from "node:http";
 import { Server, type Socket } from "socket.io";
 import type { ClientToServer, ServerToClient } from "../src/game/protocol";
 import { normaliseCode } from "../src/game/protocol";
-import type { Move, Suit } from "../src/game/rules";
+import { chooseMove, shouldCallOutOfTurn } from "../src/game/bot";
+import { currentPlayer, type Move, type Suit } from "../src/game/rules";
 import { TableStore, type Result, type Table } from "./tables";
 
 const PORT = Number(process.env.GAME_PORT ?? process.env.PORT ?? 4000);
@@ -44,12 +45,47 @@ const io = new Server<ClientToServer, ServerToClient, Record<string, never>, Dat
   connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
 });
 
-/** Send every seat at the table its own private view. */
+/** Send every seat at the table its own private view, then let computer players react. */
 function broadcast(table: Table) {
   for (const seat of table.seats) {
+    if (seat.bot) continue;
     const snap = store.snapshot(table, seat.id);
     for (const sid of seat.sockets) io.to(sid).emit("table:state", snap);
   }
+  scheduleBots(table);
+}
+
+const botTimers = new Map<string, NodeJS.Timeout>();
+const BOT_THINK_MS = Number(process.env.BOT_THINK_MS ?? 1100);
+
+/**
+ * Computer players: call "Niko kadi!" when they can, and take their turn after a short,
+ * human-feeling pause so people can follow what happened.
+ */
+function scheduleBots(table: Table) {
+  const game = table.game;
+  if (!game || table.status !== "playing" || game.winnerId || botTimers.has(table.code)) return;
+  for (const seat of table.seats) {
+    if (seat.bot && store.get(table.code) === table && shouldCallOutOfTurn(game, seat.id, seat.bot)) {
+      if (store.move(table, seat.id, { type: "declare" }).ok) return broadcast(table);
+    }
+  }
+  const turnSeat = table.seats.find((s) => s.id === currentPlayer(game).id);
+  if (!turnSeat?.bot) return;
+  const level = turnSeat.bot;
+  const delay = BOT_THINK_MS * (0.7 + Math.random() * 0.6);
+  botTimers.set(
+    table.code,
+    setTimeout(() => {
+      botTimers.delete(table.code);
+      const g = table.game;
+      if (!g || table.status !== "playing" || store.get(table.code) !== table) return;
+      if (currentPlayer(g).id !== turnSeat.id) return scheduleBots(table);
+      const r = store.move(table, turnSeat.id, chooseMove(g, turnSeat.id, level));
+      if (!r.ok) store.move(table, turnSeat.id, { type: "draw" });
+      broadcast(table);
+    }, delay),
+  );
 }
 
 /** Simple flood protection: about 10 messages a second per connection. */
@@ -151,6 +187,14 @@ io.on("connection", (raw) => {
     const r = store.start(cur.table, cur.seatId);
     if (r.ok) broadcast(cur.table);
     ack(r);
+  });
+
+  on("table:addBot", (ack, p: { level?: unknown }) => {
+    const cur = seated(socket);
+    if (!cur) return ack({ ok: false, error: "Join a table first." });
+    const r = store.addBot(cur.table, cur.seatId, p?.level === "easy" ? "easy" : "normal");
+    if (r.ok) broadcast(cur.table);
+    ack(r.ok ? { ok: true } : r);
   });
 
   on("table:kick", (ack, p: { seatId?: string }) => {

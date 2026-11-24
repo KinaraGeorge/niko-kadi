@@ -27,6 +27,16 @@ export function Lobby({ snap, onLeave }: { snap: TableSnapshot; onLeave: () => v
     if (!r.ok) setError(r.error);
   }
 
+  async function addBot(level: "easy" | "normal") {
+    const r = await emit((s, ack) => s.emit("table:addBot", { level }, ack));
+    setError(r.ok ? "" : r.error);
+  }
+
+  async function remove(seatId: string) {
+    const r = await emit((s, ack) => s.emit("table:kick", { seatId }, ack));
+    setError(r.ok ? "" : r.error);
+  }
+
   async function deal() {
     setBusy(true);
     const r = await emit((s, ack) => s.emit("table:start", ack));
@@ -51,12 +61,25 @@ export function Lobby({ snap, onLeave }: { snap: TableSnapshot; onLeave: () => v
           <ShareInvite code={snap.code} tableName={snap.name} />
           {isHost ? (
             <button className="btn btn-main btn-block deal-btn" type="button" onClick={deal} disabled={busy || snap.seats.length < 2}>
-              {snap.seats.length < 2 ? "Waiting for friends…" : busy ? "Dealing…" : `Deal ${snap.rules.startHand} cards each`}
+              {snap.seats.length < 2 ? "Waiting for players…" : busy ? "Dealing…" : `Deal ${snap.rules.startHand} cards each`}
             </button>
+          ) : null}
+          {isHost && snap.seats.length < 6 ? (
+            <div className="add-bot">
+              <p className="add-bot-label">No one around? Add a computer player:</p>
+              <div className="add-bot-btns">
+                <button type="button" className="btn btn-ghost" onClick={() => addBot("easy")}>
+                  🤖 Easy
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={() => addBot("normal")}>
+                  🤖 Normal
+                </button>
+              </div>
+            </div>
           ) : null}
           {error ? <p className="form-error" role="alert">{error}</p> : null}
         </div>
-        <Seats seats={snap.seats} youId={snap.youId} />
+        <Seats seats={snap.seats} youId={snap.youId} onRemove={isHost ? remove : undefined} />
       </div>
 
       <section className="rules-panel panel" aria-labelledby="hr-title">
@@ -83,7 +106,7 @@ export function Lobby({ snap, onLeave }: { snap: TableSnapshot; onLeave: () => v
             </li>
           ))}
           <li>
-            <div className="toggle">
+            <div className="toggle stepper-row">
               <span>
                 <strong>Cards each</strong>
                 <small>Most tables deal four.</small>

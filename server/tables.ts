@@ -4,6 +4,7 @@
  * or a dropped connection puts them straight back in their seat.
  */
 import { randomBytes, randomInt } from "node:crypto";
+import { BOT_NAMES, type BotLevel } from "../src/game/bot";
 import {
   DEFAULT_RULES,
   applyMove,
@@ -31,6 +32,7 @@ export interface Seat {
   name: string;
   sockets: Set<string>;
   wins: number;
+  bot?: BotLevel;
 }
 
 export interface Table {
@@ -106,6 +108,20 @@ export class TableStore {
     return { ok: true, table, seat };
   }
 
+  addBot(table: Table, seatId: string, level: BotLevel): Result<{ seat: Seat }> {
+    if (seatId !== table.hostId) return { ok: false, error: "Only the host can add computer players." };
+    if (table.status === "playing") return { ok: false, error: "Add computer players between games." };
+    if (table.seats.length >= MAX_SEATS) return { ok: false, error: `The table is full (${MAX_SEATS} seats).` };
+    if (level !== "easy" && level !== "normal") return { ok: false, error: "Pick easy or normal." };
+    const taken = new Set(table.seats.map((s) => s.name.toLowerCase()));
+    const free = BOT_NAMES.filter((n) => !taken.has(n.toLowerCase()));
+    const name = free.length ? free[randomInt(free.length)] : `Bot ${table.seats.length + 1}`;
+    const seat: Seat = { id: newId(), token: newToken(), name, sockets: new Set(), wins: 0, bot: level };
+    table.seats.push(seat);
+    table.lastActive = Date.now();
+    return { ok: true, seat };
+  }
+
   setRules(table: Table, seatId: string, patch: Partial<HouseRules>): Result {
     if (seatId !== table.hostId) return { ok: false, error: "Only the host can change house rules." };
     if (table.status === "playing") return { ok: false, error: "Change rules between games." };
@@ -156,10 +172,13 @@ export class TableStore {
       table.game = removePlayer(table.game, seatId);
       if (table.game.winnerId && table.status === "playing") table.status = "finished";
     }
-    if (table.seats.length === 0) {
+    if (!table.seats.some((s) => !s.bot)) {
+      // Only computer players left: close the table.
+      table.seats = [];
       this.tables.delete(table.code);
     } else if (table.hostId === seatId) {
-      table.hostId = (table.seats.find((s) => s.sockets.size > 0) ?? table.seats[0]).id;
+      const humans = table.seats.filter((s) => !s.bot);
+      table.hostId = (humans.find((s) => s.sockets.size > 0) ?? humans[0]).id;
     }
     table.lastActive = Date.now();
     return { ok: true, removed };
@@ -174,10 +193,11 @@ export class TableStore {
       seats: table.seats.map((s) => ({
         id: s.id,
         name: s.name,
-        connected: s.sockets.size > 0,
+        connected: !!s.bot || s.sockets.size > 0,
         host: s.id === table.hostId,
         waiting: table.status === "playing" && !inGame.has(s.id),
         wins: s.wins,
+        ...(s.bot ? { bot: s.bot } : {}),
       })),
       rules: table.rules,
       youId: seatId,
@@ -189,7 +209,7 @@ export class TableStore {
   sweep(maxIdleMs: number) {
     const now = Date.now();
     for (const [code, t] of this.tables) {
-      const anyoneHere = t.seats.some((s) => s.sockets.size > 0);
+      const anyoneHere = t.seats.some((s) => !s.bot && s.sockets.size > 0);
       if (!anyoneHere && now - t.lastActive > maxIdleMs) this.tables.delete(code);
     }
   }

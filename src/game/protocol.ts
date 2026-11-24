@@ -2,6 +2,7 @@
  * Messages between the browser and the game server.
  * Shared by both sides so a typo becomes a type error, not a silent bug.
  */
+import type { BotLevel } from "./bot";
 import type { Card, HouseRules, PlayerView, Suit } from "./rules";
 
 export const MAX_SEATS = 6;
@@ -21,6 +22,8 @@ export interface SeatInfo {
   /** Joined while a game was running; plays from the next round. */
   waiting: boolean;
   wins: number;
+  /** Set for computer players. */
+  bot?: BotLevel;
 }
 
 export interface TableSnapshot {
@@ -41,6 +44,7 @@ export interface ClientToServer {
   "table:rules": (p: Partial<HouseRules>, ack: Ack) => void;
   "table:start": (ack: Ack) => void;
   "table:kick": (p: { seatId: string }, ack: Ack) => void;
+  "table:addBot": (p: { level: BotLevel }, ack: Ack) => void;
   "table:leave": (ack: Ack) => void;
   "game:play": (p: { cards: Card[]; suit?: Suit; declare?: boolean }, ack: Ack) => void;
   "game:draw": (ack: Ack) => void;

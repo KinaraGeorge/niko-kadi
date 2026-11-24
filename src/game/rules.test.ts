@@ -17,7 +17,7 @@ import {
 function state(over: Partial<GameState> & { hands: string[][] }): GameState {
   const { hands, ...rest } = over;
   return {
-    players: hands.map((hand, i) => ({ id: `p${i}`, name: `P${i}`, hand, declared: false })),
+    players: hands.map((hand, i) => ({ id: `p${i}`, name: `P${i}`, hand, declared: false, declaredAt: -1 })),
     deck: ["4C", "5C", "6C", "7C", "9C", "10C", "4D", "5D", "6D", "7D"],
     discard: ["5H"],
     turn: 0,
@@ -29,6 +29,7 @@ function state(over: Partial<GameState> & { hands: string[][] }): GameState {
     rules: DEFAULT_RULES,
     log: [],
     version: 1,
+    turnCount: 0,
     ...rest,
   };
 }
@@ -195,6 +196,20 @@ describe("going out", () => {
     expect(s.players[0].declared).toBe(true);
     s = play(s, "p1", { type: "play", cards: ["9S"] });
     s = play(s, "p0", { type: "play", cards: ["4S"] });
+    expect(s.winnerId).toBe("p0");
+  });
+
+  it("you can't call and go out on the same turn", () => {
+    let s = state({ hands: [["9H"], ["4S", "4C"]] });
+    s = play(s, "p0", { type: "declare" });
+    expect(reject(s, "p0", { type: "play", cards: ["9H"] })).toMatch(/next turn/);
+  });
+
+  it("calling out of turn counts for your next turn", () => {
+    let s = state({ hands: [["9H", "9D"], ["9S", "4C"]], turn: 1, discard: ["9C"] });
+    s = play(s, "p0", { type: "declare" });
+    s = play(s, "p1", { type: "play", cards: ["9S"] });
+    s = play(s, "p0", { type: "play", cards: ["9H", "9D"] });
     expect(s.winnerId).toBe("p0");
   });
 
