@@ -7,13 +7,15 @@
 A mobile-first landing page for **Kadi**, the card game every Kenyan learned at a family gathering,<br/>
 rebuilt for the group chat era.
 
-![Status](https://img.shields.io/badge/status-design%20prototype-1FB76A?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-landing%20page%20live-1FB76A?style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Next.js-16-0C2A1B?style=for-the-badge&logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-0B5D3A?style=for-the-badge&logo=typescript&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-C9F25A?style=for-the-badge&logo=docker&labelColor=0C2A1B)
 ![Mobile first](https://img.shields.io/badge/mobile-first-0B5D3A?style=for-the-badge)
-![No build step](https://img.shields.io/badge/build-none%20needed-C9F25A?style=for-the-badge&labelColor=0C2A1B)
 ![License](https://img.shields.io/badge/license-not%20chosen%20yet-42604F?style=for-the-badge)
 ![Free to play](https://img.shields.io/badge/real%20money-never-E0352B?style=for-the-badge)
 
-[**Live design preview**](https://claude.ai/artifact/T5YwWshJfgzW3Vvob7dci5) · [**Design brief**](design/HANDOFF.md) · [**Roadmap**](#-roadmap)
+[**Design brief**](design/HANDOFF.md) · [**Architecture plan**](docs/ARCHITECTURE.md) · [**Roadmap**](#-roadmap)
 
 </div>
 
@@ -25,7 +27,9 @@ rebuilt for the group chat era.
 - [Features](#-features)
 - [What is Kadi?](#-what-is-kadi)
 - [Quick start](#-quick-start)
+- [Deploying to a VPS](#-deploying-to-a-vps)
 - [Project structure](#-project-structure)
+- [Tech choices](#-tech-choices)
 - [Design system](#-design-system)
 - [Page walkthrough](#-page-walkthrough)
 - [Placeholders and limits](#%EF%B8%8F-placeholders-and-limits)
@@ -41,7 +45,7 @@ rebuilt for the group chat era.
 
 **Why it exists:** organising a game should be as easy as sending a message. One code in the group chat, and everyone is at the table.
 
-Kadi Night is the front door to an online Kadi game. Right now it is a **design prototype**: one polished landing page that shows how the product should look, feel and speak before any game code is written.
+Kadi Night is the front door to an online Kadi game. Right now it is a **Next.js landing page**, ported exactly from the original design. The first big milestone is a link you can share in the group chat so friends can play a real game together, with Discord-style voice chat after that.
 
 The page lets someone:
 
@@ -51,7 +55,7 @@ The page lets someone:
 4. **Learn the power cards** they grew up with.
 
 > [!NOTE]
-> The game itself is not built yet. The invite builder works in the browser only, so nothing is saved or sent anywhere.
+> The game itself is not built yet. The invite builder works in the browser only, so nothing is saved or sent anywhere. The plan for online play and voice is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
@@ -63,7 +67,9 @@ The page lets someone:
 - 🔗 **Shareable code and link** with a one-tap copy button.
 - 🌗 **Light and dark mode** that follow your system setting.
 - 🇰🇪 **Kenyan through and through:** flag stripe, Swahili touches, the rules you know.
-- ⚡ **Zero setup:** one HTML file, no build tools, no dependencies.
+- 📲 **Add to Home Screen:** a web app manifest makes it open like an app.
+- 🐳 **Self-hostable:** one Docker image, no Vercel-only features, health check built in.
+- 🗣 **Coming next:** real-time play, then table voice chat with push-to-talk, noise suppression, mute, deafen and per-person volume.
 
 ---
 
@@ -89,27 +95,61 @@ The fun lives in the **power cards**:
 
 ## 🚀 Quick start
 
-There is nothing to install. The whole page is a single HTML file.
+**Prerequisites**
 
-**Prerequisites:** a web browser. Git is optional, and Python 3 only if you want option 2.
+- [Node.js](https://nodejs.org) 20.9 or newer (22 recommended; there is an `.nvmrc`)
+- npm, which comes with Node
 
-**Option 1: just open it**
+**Run it locally**
 
 ```sh
 git clone https://github.com/KinaraGeorge/niko-kadi.git
 cd niko-kadi
-open design/index.html        # macOS
-xdg-open design/index.html    # Linux
-start design/index.html       # Windows
+npm install
+npm run dev
 ```
 
-**Option 2: serve it locally** (closer to how it will run online)
+Open **http://localhost:3000**. Edits to files in `src/` show up instantly. Use your browser's device toolbar to check the phone layout first, since that is what it is designed for.
+
+**Handy scripts**
+
+| Command | What it does |
+| :-- | :-- |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build (also type-checks) |
+| `npm start` | Serve the production build |
+| `npm run typecheck` | TypeScript check only |
+
+> [!TIP]
+> To test on your phone, run `npm run dev -- -H 0.0.0.0`, then open `http://<your-computer's-IP>:3000` on a phone connected to the same Wi-Fi.
+
+---
+
+## 🐳 Deploying to a VPS
+
+The app ships as a small Docker image that runs anywhere, including the KVM2 VPS it is headed for.
 
 ```sh
-python3 -m http.server -d design 8000
+# on the VPS, inside the cloned repo
+cp .env.example .env          # set NEXT_PUBLIC_SITE_URL to your address
+docker compose up -d --build  # builds and starts the web app on port 3000
+curl http://127.0.0.1:3000/api/health   # → {"ok":true}
 ```
 
-Then visit **http://localhost:8000**. Use your browser's device toolbar to see it on a phone-sized screen first, since that is what it was designed for.
+The container only listens on `127.0.0.1`, so put a reverse proxy such as [Caddy](https://caddyserver.com) in front for HTTPS. HTTPS is required anyway once voice chat lands, because browsers only allow the microphone on secure sites. Until there is a real domain, a free hostname like `<your-ip>.sslip.io` works.
+
+<details>
+<summary>Minimal Caddyfile</summary>
+
+```caddy
+your-ip.sslip.io {
+  reverse_proxy 127.0.0.1:3000
+}
+```
+
+Caddy fetches and renews the HTTPS certificate on its own.
+
+</details>
 
 ---
 
@@ -117,16 +157,38 @@ Then visit **http://localhost:8000**. Use your browser's device toolbar to see i
 
 ```text
 niko-kadi/
-├── README.md            ← you are here
-└── design/
-    ├── index.html       ← the landing page: HTML, CSS and JS in one file
-    └── HANDOFF.md       ← full design brief and decisions to keep
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx         ← fonts, page metadata, phone theme colours
+│   │   ├── page.tsx           ← the landing page, assembled from sections
+│   │   ├── globals.css        ← design tokens and all styles
+│   │   ├── manifest.ts        ← "Add to Home Screen" support
+│   │   ├── icon.svg           ← the K logo used as favicon and app icon
+│   │   └── api/health/        ← health check for Docker and the proxy
+│   ├── components/            ← one file per section (Hero, InviteBuilder, PowerCards…)
+│   └── lib/                   ← site settings, power-card data, table-code helper
+├── design/
+│   ├── index.html             ← original single-file design, the visual reference
+│   └── HANDOFF.md             ← design brief and decisions to keep
+├── docs/ARCHITECTURE.md       ← plan for online play, voice chat and hosting
+├── Dockerfile                 ← production image (Next.js standalone)
+├── compose.yaml               ← runs it on the VPS, with slots for game and voice servers
+└── .env.example               ← settings to copy into .env
 ```
 
-| File | Purpose |
-| :--- | :--- |
-| [`design/index.html`](design/index.html) | The visual source of truth. Every colour, font and section the final app should match. |
-| [`design/HANDOFF.md`](design/HANDOFF.md) | Why things look the way they do, the placeholders to swap out, and a ready-made prompt to continue the build with Claude Code. |
+---
+
+## 🧱 Tech choices
+
+| Choice | Why |
+| :-- | :-- |
+| **Next.js (App Router)** | Pre-rendered pages load fast on mobile data, and the same project grows into the full app. |
+| **TypeScript, strict** | Catches mistakes early, which matters once the rules engine arrives. |
+| **Plain CSS with tokens** | Keeps the design pixel-exact and the download tiny. No CSS framework needed. |
+| **`next/font`** | Fonts are bundled at build time, so phones never wait on Google Fonts. |
+| **Standalone output + Docker** | Runs on any VPS with plain Node. No dependency on Vercel. |
+| **Socket.IO game server** *(next)* | Real-time moves with automatic reconnects on flaky networks. |
+| **LiveKit, self-hosted** *(later)* | Open-source voice server: push-to-talk, mute, deafen, noise suppression, per-person volume. |
 
 ---
 
@@ -185,6 +247,7 @@ From top to bottom:
 | `kadinight.app` domain | Placeholder. Not a real site yet. |
 | `KADI-XXX` invite codes | Generated in the browser for show only. |
 | Invite builder | Front end only. No backend, accounts or storage. |
+| `NEXT_PUBLIC_SITE_URL` | Defaults to the placeholder. Set it in `.env` on the server. |
 | The game itself | Not started. See the roadmap. |
 
 ---
@@ -193,12 +256,15 @@ From top to bottom:
 
 - [x] Landing page design (mobile first, light and dark mode)
 - [x] Design brief and handoff notes
-- [ ] Choose a stack (plain HTML, Next.js or other) and port the page into components
-- [ ] Real "create table" and "join by code" flow
-- [ ] Realtime multiplayer backend (WebSockets)
-- [ ] Deck and power-card rules engine with adjustable house rules
-- [ ] The *"Niko kadi!"* call mechanic
-- [ ] Rules explainer page and in-game table screen
+- [x] Next.js app with the landing page ported into components
+- [x] Docker image and compose file for the VPS
+- [ ] **Milestone: share a link and play with friends**
+  - [ ] Rules engine with adjustable house rules
+  - [ ] Real-time game server: create table, join by code, play
+  - [ ] In-game table screen for phones, with the *"Niko kadi!"* call
+  - [ ] Deploy to the VPS with HTTPS
+- [ ] Table voice chat: open mic or push-to-talk, noise suppression, mute, deafen, per-person volume
+- [ ] Rules explainer page, rematches and stats
 
 ---
 

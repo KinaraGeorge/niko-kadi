@@ -1,0 +1,26 @@
+# Runs Kadi Night on a single VPS.
+# Today: just the web app. The commented services show where the game server
+# and voice server slot in later (see docs/ARCHITECTURE.md).
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    ports:
+      - "127.0.0.1:3000:3000" # only reachable through the reverse proxy
+
+  # game:     # realtime game server (WebSockets), phase 2
+  #   build: ./apps/game
+  #   restart: unless-stopped
+
+  # livekit:  # self-hosted voice (WebRTC SFU), phase 3
+  #   image: livekit/livekit-server:latest
+  #   network_mode: host
+  #   command: --config /etc/livekit.yaml
+  #   volumes:
+  #     - ./livekit.yaml:/etc/livekit.yaml:ro
+
+  # caddy:    # reverse proxy with automatic HTTPS
+  #   image: caddy:2
+  #   ports: ["80:80", "443:443"]
