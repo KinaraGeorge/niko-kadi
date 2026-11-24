@@ -1,26 +1,38 @@
-# Runs Kadi Night on a single VPS.
-# Today: just the web app. The commented services show where the game server
-# and voice server slot in later (see docs/ARCHITECTURE.md).
+# Runs all of Kadi Night on one machine: your laptop or the VPS.
+#
+#   SITE_ADDRESS=http://localhost docker compose up -d --build     (try it locally)
+#   SITE_ADDRESS=2-25-6-88.sslip.io docker compose up -d --build   (on the VPS, real HTTPS)
+#
+# Caddy is the only service open to the internet. It gets HTTPS certificates
+# automatically and sends /socket.io traffic to the game server, the rest to the site.
 services:
   web:
-    build: .
+    build: { context: ., target: web }
     restart: unless-stopped
+
+  game:
+    build: { context: ., target: game }
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [web, game]
     environment:
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}
     ports:
-      - "127.0.0.1:3000:3000" # only reachable through the reverse proxy
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
-  # game:     # realtime game server (WebSockets), phase 2
-  #   build: ./apps/game
-  #   restart: unless-stopped
-
-  # livekit:  # self-hosted voice (WebRTC SFU), phase 3
+  # livekit:  # self-hosted voice chat (WebRTC), next milestone. See docs/ARCHITECTURE.md.
   #   image: livekit/livekit-server:latest
   #   network_mode: host
   #   command: --config /etc/livekit.yaml
-  #   volumes:
-  #     - ./livekit.yaml:/etc/livekit.yaml:ro
 
-  # caddy:    # reverse proxy with automatic HTTPS
-  #   image: caddy:2
-  #   ports: ["80:80", "443:443"]
+volumes:
+  caddy_data:
+  caddy_config:
