@@ -11,7 +11,7 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 ![Next.js](https://img.shields.io/badge/Next.js-16-0C2A1B?style=for-the-badge&logo=nextdotjs)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-realtime-0B5D3A?style=for-the-badge&logo=socketdotio)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0B5D3A?style=for-the-badge&logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-34%20passing-C9F25A?style=for-the-badge&labelColor=0C2A1B)
+![Tests](https://img.shields.io/badge/tests-35%20passing-C9F25A?style=for-the-badge&labelColor=0C2A1B)
 ![WCAG](https://img.shields.io/badge/contrast-WCAG%202.2%20AA-0B5D3A?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-ready-C9F25A?style=for-the-badge&logo=docker&labelColor=0C2A1B)
 ![License](https://img.shields.io/badge/license-not%20chosen%20yet-42604F?style=for-the-badge)
@@ -131,7 +131,7 @@ You'll see two coloured streams of logs: `[web]` for the website and `[game]` fo
 | Command | What it does |
 | :-- | :-- |
 | `npm run dev` | Website on port 3000 and game server on port 4000, both reload when you edit |
-| `npm test` | Runs the 34 tests (rules engine and computer players) |
+| `npm test` | Runs the 35 tests (rules engine and computer players) |
 | `npm run smoke` | Three robot players play full games against a running game server |
 | `npm run typecheck` | TypeScript check |
 | `npm run build` | Production build of the website and the game server |
@@ -169,6 +169,7 @@ To play with friends who are **not** on your Wi-Fi, deploy it to the VPS (below)
 | **Play** | Plays the selected cards. Playing an ace opens a sheet to ask for a suit. |
 | **Draw** / **Pick N** | Draw one card, or pick up the cards a 2 or 3 is making you take. Tapping the deck does the same. |
 | **Niko kadi!** | Call it when everything left in your hand can go out on your next turn. With the default rules, you can't finish without calling it first. |
+| **Played pile** (middle) | The last five cards played step up behind the top card, so you can read each one's number and suit, like a real table. |
 | **Players** (top) | Each friend's card count. A green ring shows whose turn it is. |
 
 **Default house rules** (the host can change them in the lobby):

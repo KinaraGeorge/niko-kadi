@@ -349,6 +349,8 @@ export interface PlayerView {
   you: { id: string; hand: Card[]; inGame: boolean; declared: boolean };
   players: { id: string; name: string; count: number; declared: boolean }[];
   top: Card;
+  /** The last few cards played, oldest first, ending with the top card. */
+  recent: Card[];
   discardCount: number;
   deckCount: number;
   turnId: string;
@@ -369,6 +371,7 @@ export function viewFor(s: GameState, playerId: string): PlayerView {
     you: { id: playerId, hand: me ? me.hand.slice() : [], inGame: !!me, declared: me?.declared ?? false },
     players: s.players.map((p) => ({ id: p.id, name: p.name, count: p.hand.length, declared: p.declared })),
     top: topCard(s),
+    recent: s.discard.slice(-5),
     discardCount: s.discard.length,
     deckCount: s.deck.length,
     turnId: currentPlayer(s).id,

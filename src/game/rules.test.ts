@@ -264,6 +264,11 @@ describe("deck and players", () => {
     expect(JSON.stringify(v)).not.toContain("KC");
   });
 
+  it("shows the last five played cards, oldest first", () => {
+    const s = state({ hands: [["4S"], ["4C"]], discard: ["2H", "3H", "4H", "5H", "6H", "7H", "8H"] });
+    expect(viewFor(s, "p0").recent).toEqual(["4H", "5H", "6H", "7H", "8H"]);
+  });
+
   it("removing the current player passes the turn on", () => {
     let s = state({ hands: [["4S"], ["4C"], ["4D"]], turn: 1 });
     s = removePlayer(s, "p1");

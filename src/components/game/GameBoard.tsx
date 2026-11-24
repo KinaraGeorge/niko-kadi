@@ -9,6 +9,7 @@ import {
   canFinishInOneTurn,
   isRedSuit,
   rankOf,
+  suitOf,
   type Card,
   type Suit,
 } from "@/game/rules";
@@ -161,8 +162,14 @@ export function GameBoard({ snap, onLeave }: Props) {
             disabled={!myTurn || busy}
             label={g.pendingPick ? `Pick up ${g.pendingPick} cards` : "Draw a card"}
           />
-          <div className="discard">
-            <PlayingCard card={g.top} size="lg" />
+          <div className="discard" style={{ "--n": g.recent.length } as React.CSSProperties}>
+            <ol className="discard-fan" aria-label={`Played pile, newest last: ${g.recent.map(cardName).join(", ")}`}>
+              {g.recent.map((c, i) => (
+                <li key={`${c}-${g.discardCount - g.recent.length + i}`} style={{ "--i": g.recent.length - 1 - i } as React.CSSProperties}>
+                  <PlayingCard card={c} size="lg" />
+                </li>
+              ))}
+            </ol>
             {g.requestedSuit ? (
               <span className={`asked${isRedSuit(g.requestedSuit) ? " red" : ""}`}>
                 Asked for {SUIT_SYMBOL[g.requestedSuit]}
@@ -269,6 +276,10 @@ export function GameBoard({ snap, onLeave }: Props) {
       ) : null}
     </div>
   );
+}
+
+function cardName(c: Card): string {
+  return `${rankOf(c)}${SUIT_SYMBOL[suitOf(c)]}`;
 }
 
 /** Order players starting after `id`, so opponents appear in turn order. */
