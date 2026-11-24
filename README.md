@@ -74,6 +74,7 @@ Start a table, drop the link in WhatsApp, and everyone plays from their phone.
 - 🔗 **Share anywhere:** the phone's share sheet, WhatsApp, or copy the link.
 - 🔄 **Reconnects on its own:** your seat is saved in the browser.
 - 🔒 **No cheating by peeking:** the server deals and only ever sends you your own cards.
+- 🎴 **Real-looking cards, drawn in CSS:** paper finish, corner indices, proper pip layouts and framed court cards on a felt table with a wooden rim. No images, so it stays fast on cheap phones.
 - 🌗 **Light and dark mode** that follow your phone's setting, both checked against WCAG 2.2 AA contrast.
 - 🇰🇪 **Kenyan through and through:** flag stripe, Swahili touches, the rules you know.
 - 🐳 **Self-hostable:** Docker Compose with automatic HTTPS. No Vercel-only features.
@@ -165,7 +166,7 @@ To play with friends who are **not** on your Wi-Fi, deploy it to the VPS (below)
 
 | On screen | What it does |
 | :-- | :-- |
-| **Your hand** (bottom) | Cards with a green ring can be played now. Tap to select. Tap more cards of the same rank to drop them together. |
+| **Your hand** (bottom) | Held as a fan, sorted by suit then number, like real cards. Cards with a green ring can be played now. Tap to select, and tap more cards of the same rank to drop them together. Power cards carry a small mark under the corner: ★ change suit, +2, +3, ? question, ⤼ skip, ⇄ kickback. |
 | **Play** | Plays the selected cards. Playing an ace opens a sheet to ask for a suit. |
 | **Draw** / **Pick N** | Draw one card, or pick up the cards a 2 or 3 is making you take. Tapping the deck does the same. |
 | **Niko kadi!** | Call it when everything left in your hand can go out on your next turn. With the default rules, you can't finish without calling it first. |

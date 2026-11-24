@@ -209,29 +209,62 @@ footer .flag{max-width:140px;border-radius:99px;overflow:hidden}
 .stepper button:disabled{cursor:not-allowed}
 .leave-row{text-align:center}
 
-/* playing cards */
-.pc{position:relative;flex:none;display:block;aspect-ratio:5/7;border-radius:12px;background:var(--card);color:var(--card-ink);border:0;padding:0;font-family:var(--display);box-shadow:0 8px 18px -10px rgba(0,0,0,.55);text-align:left;transition:transform .18s cubic-bezier(.2,1.3,.4,1),opacity .2s,box-shadow .2s}
+/* playing cards: drawn with CSS only (no images), so they stay sharp and cheap to render.
+   Everything inside scales with --w, the card width. */
+.pc{--w:74px;position:relative;flex:none;display:block;width:var(--w);aspect-ratio:5/7;font-size:calc(var(--w) / 5);
+  border-radius:calc(var(--w) * .09);padding:0;text-align:left;font-family:var(--display);color:#0C2A1B;
+  background:linear-gradient(160deg,#FFFFFF 0%,#FCFBF7 50%,#F2EFE6 100%);
+  border:1px solid #D6D0C0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 2px rgba(0,0,0,.22),0 8px 16px -10px rgba(0,0,0,.6);
+  transition:transform .2s cubic-bezier(.2,1.2,.4,1),box-shadow .2s,filter .2s}
 button.pc{cursor:pointer}
 .pc.red{color:var(--suit-red)}
-.pc-sm{width:44px;border-radius:8px}
-.pc-md{width:74px}
-.pc-lg{width:96px;border-radius:14px}
-.pc-corner{position:absolute;top:6px;left:8px;display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:1.15rem;line-height:1}
-.pc-corner small{font-size:.95rem}
-.pc-lg .pc-corner{font-size:1.5rem;top:8px;left:10px}
-.pc-mid{position:absolute;inset:0;display:grid;place-items:center;font-size:2.1rem}
-.pc-lg .pc-mid{font-size:3rem}
-.pc-tag{position:absolute;left:4px;right:4px;bottom:5px;padding:.2rem .1rem;border-radius:6px;background:var(--felt);color:#F1FBEA;font:700 .56rem/1.1 var(--body);letter-spacing:.04em;text-transform:uppercase;text-align:center}
-.pc-lg .pc-tag{font-size:.64rem}
-.pc.ok{box-shadow:0 0 0 3px var(--ring),0 8px 18px -10px rgba(0,0,0,.55)}
+.pc-sm{--w:44px}
+.pc-md{--w:74px}
+.pc-lg{--w:96px}
+.pc-corner{position:absolute;top:.32em;left:.28em;display:flex;flex-direction:column;align-items:center;line-height:.9;z-index:1}
+.pc-corner b{font-weight:800;font-size:1.05em;letter-spacing:-.04em}
+.pc-corner small{font-size:.86em;margin-top:.05em}
+.pc-corner .pc-mark{font:800 .5em/1 var(--body);font-style:normal;margin-top:.25em;padding:.15em .3em;border-radius:.6em;border:1px solid currentColor;white-space:nowrap}
+.pc-corner.flip{top:auto;left:auto;bottom:.32em;right:.28em;transform:rotate(180deg)}
+.pc-sm .pc-corner{top:.25em;left:.25em;font-size:1.25em}
+.pc-face{position:absolute;inset:19% 31%;pointer-events:none}
+.pip{position:absolute;transform:translate(-50%,-50%);font-size:.95em;line-height:1}
+.pip.flip{transform:translate(-50%,-50%) rotate(180deg)}
+.pc-ace{display:grid;place-items:center;font-size:2.6em;line-height:1}
+.pc-court .court-frame{position:absolute;inset:-6% -14%;display:grid;place-items:center;align-content:center;gap:.05em;border-radius:.35em;
+  border:1.5px solid currentColor;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.03) 0 3px,transparent 3px 7px),linear-gradient(160deg,#FFF9EA,#F4EAD0)}
+.court-crown{font-size:.95em;line-height:1;color:#7A5A00}
+.court-letter{font-size:2em;font-weight:800;line-height:.9}
+.court-suit{font-size:1em;line-height:1}
+.pc.ok{box-shadow:0 0 0 3px var(--ring),0 1px 2px rgba(0,0,0,.22),0 8px 16px -10px rgba(0,0,0,.6)}
 .pc.sel{transform:translateY(-18px);box-shadow:0 0 0 3px var(--lime),0 0 0 6px var(--ink),0 14px 24px -12px rgba(0,0,0,.6)}
 /* Not playable now: greyed but still fully readable (no opacity, so contrast holds). */
-.pc.dim{filter:grayscale(.85);transform:translateY(6px)}
-.pc.back{display:grid;place-items:center;background:repeating-linear-gradient(45deg,#0B5D3A 0 8px,#0d6a43 8px 16px);color:var(--lime);box-shadow:inset 0 0 0 4px #EAF9E1,0 8px 18px -10px rgba(0,0,0,.55);cursor:pointer}
+.pc.dim{filter:grayscale(.85) brightness(.97)}
+
+/* card backs and the draw pile */
+.pc.back{background:#F7F4EC;cursor:pointer;display:block}
+.back-pattern{position:absolute;inset:.28em;border-radius:calc(var(--w) * .06);display:grid;place-items:center;
+  background:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.13) 0 2px,transparent 2px 9px),
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.13) 0 2px,transparent 2px 9px),
+    radial-gradient(circle at 50% 45%,#17895A,#0B5D3A 72%);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.back-k{display:grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:#0C2A1B;color:var(--lime);font:800 1.3em/1 var(--display);box-shadow:0 0 0 3px rgba(201,242,90,.5)}
+.pc.back.thin{box-shadow:1px 1px 0 #E6E1D3,2px 2px 0 #CFC8B6,0 8px 16px -10px rgba(0,0,0,.6)}
+.pc.back.thick{box-shadow:1px 1px 0 #E6E1D3,2px 2px 0 #CFC8B6,3px 3px 0 #E6E1D3,4px 4px 0 #CFC8B6,5px 5px 0 #E6E1D3,6px 6px 0 #CFC8B6,6px 14px 18px -8px rgba(0,0,0,.6)}
+.pc.back.empty .back-pattern{opacity:.35}
 .pc.back:disabled{cursor:default}
-.pc.back:not(:disabled):active{transform:scale(.96)}
-.back-k{font:800 2.4rem/1 var(--display);transform:rotate(-6deg)}
-.back-count{position:absolute;bottom:-10px;right:-10px;min-width:30px;height:30px;padding:0 .4rem;display:grid;place-items:center;border-radius:99px;background:var(--ink);color:var(--bg);font:800 .85rem/1 var(--body)}
+.pc.back:not(:disabled):active{transform:translate(2px,2px)}
+.back-count{position:absolute;bottom:-12px;right:-12px;min-width:30px;height:30px;padding:0 .4rem;display:grid;place-items:center;border-radius:99px;background:var(--night);color:var(--on-night);font:800 .85rem/1 var(--body);box-shadow:0 0 0 2px var(--on-night)}
+
+/* your hand: held as a fan, like real cards. Each card turns around a point below the hand. */
+.hand-fan{--cw:80px;position:relative;height:calc(var(--cw) * 1.4 + 3.6rem);margin:.2rem auto 0;max-width:560px;touch-action:manipulation}
+.hand-fan .pc{--w:var(--cw);position:absolute;left:calc(50% - var(--cw) / 2);bottom:2rem;transform-origin:50% 330%;transform:rotate(var(--a))}
+.hand-fan .pc.sel{transform:rotate(var(--a)) translateY(-26px)}
+.hand-fan .pc.dim{transform:rotate(var(--a)) translateY(5px)}
+@media (hover:hover){.hand-fan .pc.ok:not(.sel):hover{transform:rotate(var(--a)) translateY(-10px)}}
 
 /* game board: one screen on a phone */
 .board{flex:1;display:flex;flex-direction:column;min-height:0}
@@ -246,7 +279,11 @@ button.pc{cursor:pointer}
 .opp.away i{background:transparent;box-shadow:inset 0 0 0 2px var(--field);color:var(--ink)}
 .opp-call,.opp-away{position:absolute;top:-8px;right:-4px;padding:.15rem .45rem;border-radius:99px;background:var(--suit-red);color:#fff;font:800 .62rem/1.2 var(--body);text-transform:uppercase}
 .opp-away{background:var(--ink-soft);color:var(--bg)}
-.felt{margin:.2rem var(--gutr) 0 var(--gut);max-height:46vh;flex:1;min-height:250px;display:grid;align-content:center;justify-items:center;gap:.8rem;padding:1.2rem 1rem;border-radius:36px;background:radial-gradient(ellipse at 50% 40%,#147a4d,#0B5D3A 70%);color:#EAF9E1}
+.felt{margin:.6rem calc(var(--gutr) + 6px) 0 calc(var(--gut) + 6px);max-height:48vh;flex:1;min-height:260px;display:grid;align-content:center;justify-items:center;gap:.8rem;padding:1.2rem 1rem;border-radius:36px;color:#EAF9E1;
+  background:
+    radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.2px) 0 0/5px 5px,
+    radial-gradient(ellipse at 50% 32%,#1A8A58 0%,#0F6E45 42%,#0B5D3A 72%,#08482D 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 14px 40px rgba(0,0,0,.35),0 0 0 6px #6B4423,0 0 0 8px #3E2612,0 18px 30px -16px rgba(0,0,0,.6)}
 .piles{display:flex;align-items:center;gap:1.6rem}
 .discard{position:relative;display:grid;justify-items:center}
 /* Played pile: the last cards peek out above the top card, stepped diagonally like
@@ -255,10 +292,11 @@ button.pc{cursor:pointer}
   margin-left:calc((var(--n) - 1) * 10px);margin-top:calc((var(--n) - 1) * 26px)}
 .discard-fan li{position:absolute;inset:0;transform:translate(calc(var(--i) * -10px),calc(var(--i) * -26px))}
 .discard-fan li:last-child{z-index:2}
-.discard-fan .pc-corner{flex-direction:row;align-items:baseline;gap:1px;top:5px;left:9px;font-size:1.25rem}
-.discard-fan .pc-corner small{font-size:1.05rem}
+.discard-fan li:not(:last-child) .pc-corner:not(.flip){flex-direction:row;align-items:baseline;gap:1px;top:.18em}
+.discard-fan li:not(:last-child) .pc-corner small{margin-top:0}
+.discard-fan li:not(:last-child) .pc-mark{display:none}
 .discard-fan li:not(:last-child) .pc{box-shadow:0 -2px 0 rgba(0,0,0,.08),0 4px 10px -6px rgba(0,0,0,.6)}
-.discard-fan li:not(:last-child) .pc-tag,.discard-fan li:not(:last-child) .pc-mid{display:none}
+.discard-fan li:not(:last-child) .pc-face,.discard-fan li:not(:last-child) .pc-corner.flip{display:none}
 .asked{position:absolute;bottom:-14px;padding:.3rem .7rem;border-radius:99px;background:var(--lime);color:#0C2A1B;font:800 .85rem/1 var(--body);white-space:nowrap}
 .asked.red{color:#A8231B}
 .felt-info{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-top:.6rem}
@@ -293,11 +331,11 @@ button.pc{cursor:pointer}
 
 @media (min-width:720px){
   .lobby .invite{grid-template-columns:1fr 1fr}
-  .pc-md{width:92px}
-  .pc-lg{width:118px}
+  .pc-md{--w:92px}
+  .pc-lg{--w:118px}
+  .hand-fan{--cw:96px}
   .discard-fan{width:118px;margin-left:calc((var(--n) - 1) * 12px);margin-top:calc((var(--n) - 1) * 30px)}
   .discard-fan li{transform:translate(calc(var(--i) * -12px),calc(var(--i) * -30px))}
-  .discard-fan .pc-corner{font-size:1.45rem}
   .felt{max-width:1080px;margin-inline:auto;width:calc(100% - 2*var(--gut))}
   .actions{max-width:560px;margin-inline:auto}
 }
@@ -345,3 +383,5 @@ button.pc{cursor:pointer}
 /* Reduced motion: no zooming, just a gentle fade in and out over the same 3 seconds. */
 @keyframes callout-calm{0%{opacity:0}10%{opacity:1}70%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.callout{animation:callout-calm 3s linear forwards !important;transition:none}}
+/* Short phones: a slightly smaller hand so the table stays visible. */
+@media (max-height:700px){.hand-fan{--cw:66px}.felt{min-height:220px}}

@@ -8,6 +8,7 @@ import {
   SUIT_SYMBOL,
   canFinishInOneTurn,
   isRedSuit,
+  RANKS,
   rankOf,
   suitOf,
   type Card,
@@ -18,6 +19,8 @@ import { CardBack, PlayingCard } from "./PlayingCard";
 import { PlayCallout } from "./PlayCallout";
 
 type Props = { snap: TableSnapshot; onLeave: () => void };
+
+const SUIT_ORDER: Suit[] = ["S", "H", "C", "D"];
 
 /** The in-game screen, laid out for one hand on a phone: opponents up top, piles in the middle, your hand at the bottom. */
 export function GameBoard({ snap, onLeave }: Props) {
@@ -51,6 +54,13 @@ export function GameBoard({ snap, onLeave }: Props) {
     const t = setTimeout(() => setToast(""), 3200);
     return () => clearTimeout(t);
   }, [toast]);
+
+  // Hold the hand like a real player: sorted by suit (alternating colours), then rank.
+  const hand = [...me.hand].sort(
+    (a, b) => SUIT_ORDER.indexOf(suitOf(a)) - SUIT_ORDER.indexOf(suitOf(b)) || RANKS.indexOf(rankOf(a)) - RANKS.indexOf(rankOf(b)),
+  );
+  // Spread the fan: up to 9° between cards, never wider than about 60° in total.
+  const fanStep = hand.length > 1 ? Math.min(9, 60 / (hand.length - 1)) : 0;
 
   const seatName = (id: string) => (id === me.id ? "You" : g.players.find((p) => p.id === id)?.name ?? "Someone");
   const turnName = seatName(g.turnId);
@@ -193,11 +203,12 @@ export function GameBoard({ snap, onLeave }: Props) {
           {status}
           {me.declared ? <span className="badge hot">Niko kadi!</span> : null}
         </p>
-        <div className="hand-row" aria-label="Your hand">
-          {me.hand.map((c) => (
+        <div className="hand-fan" role="group" aria-label={`Your hand, ${me.hand.length} cards`}>
+          {hand.map((c, i) => (
             <PlayingCard
               key={c}
               card={c}
+              style={{ "--a": `${(i - (hand.length - 1) / 2) * fanStep}deg`, zIndex: i } as React.CSSProperties}
               selected={selected.includes(c)}
               playable={myTurn && g.playable.includes(c)}
               dim={myTurn && !g.playable.includes(c) && !(selected.length > 0 && rankOf(c) === rankOf(selected[0]))}
